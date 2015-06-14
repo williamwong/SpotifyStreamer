@@ -1,5 +1,7 @@
 <resources>
-  <string name="app_name">SpotifyStreamer</string>
-  <string name="hello_world">Hello world!</string>
+  <string name="app_name">Spotify Streamer</string>
   <string name="action_settings">Settings</string>
+
+  <!-- Search Artist Fragment -->
+  <string name="hint_search_artist">Enter artist name</string>
 </resources>
