@@ -20,8 +20,8 @@ import java.util.List;
  */
 public class ArtistAdapter extends ArrayAdapter<ArtistModel> {
 
-  public ArtistAdapter(Context context, int resource, List<ArtistModel> objects) {
-    super(context, resource, objects);
+  public ArtistAdapter(Context context, List<ArtistModel> objects) {
+    super(context, 0, objects);
   }
 
   private static class ViewHolder {

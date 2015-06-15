@@ -39,10 +39,11 @@ import retrofit.client.Response;
 public class SearchArtistFragment extends Fragment {
 
   public static final int MIN_THUMBNAIL_WIDTH = 200;
+  public static final String ARTIST_MODELS_KEY = "artistsModels";
 
   private SpotifyService mSpotify = new SpotifyApi().getService();
-  private EditText mSearchArtistEditText;
-  private ListView mArtistsListView;
+  private ArrayList<ArtistModel> mArtistModels;
+  private ArtistAdapter mArtistAdapter;
 
   public SearchArtistFragment() {
   }
@@ -52,10 +53,19 @@ public class SearchArtistFragment extends Fragment {
                            Bundle savedInstanceState) {
     View view = inflater.inflate(R.layout.fragment_main, container, false);
 
-    mSearchArtistEditText = (EditText) view.findViewById(R.id.searchArtistEditText);
-    mArtistsListView = (ListView) view.findViewById(R.id.artistsListView);
+    if (savedInstanceState != null &&
+        savedInstanceState.getParcelableArrayList(ARTIST_MODELS_KEY)!= null) {
+      mArtistModels = savedInstanceState.getParcelableArrayList(ARTIST_MODELS_KEY);
+    } else {
+      mArtistModels = new ArrayList<>();
+    }
 
-    mSearchArtistEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+    ListView artistsListView = (ListView) view.findViewById(R.id.artistsListView);
+    mArtistAdapter = new ArtistAdapter(getActivity(), mArtistModels);
+    artistsListView.setAdapter(mArtistAdapter);
+
+    EditText searchArtistEditText = (EditText) view.findViewById(R.id.searchArtistEditText);
+    searchArtistEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
       @Override
       public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
         boolean handled = false;
@@ -99,11 +109,9 @@ public class SearchArtistFragment extends Fragment {
   }
 
   private void updateArtists(ArtistsPager artistsPager) {
-    List<ArtistModel> artistModels = new ArrayList<>();
+    mArtistModels.clear();
     for (Artist artist : artistsPager.artists.items) {
-
       ArtistModel artistModel = new ArtistModel();
-
       artistModel.setName(artist.name);
 
       List<Image> images = artist.images;
@@ -124,10 +132,15 @@ public class SearchArtistFragment extends Fragment {
 
       // TODO add placeholder image
 
-      artistModels.add(artistModel);
+      mArtistModels.add(artistModel);
     }
 
-    ArtistAdapter artistAdapter = new ArtistAdapter(getActivity(), 0, artistModels);
-    mArtistsListView.setAdapter(artistAdapter);
+    mArtistAdapter.notifyDataSetChanged();
+  }
+
+  @Override
+  public void onSaveInstanceState(Bundle outState) {
+    super.onSaveInstanceState(outState);
+    outState.putParcelableArrayList(ARTIST_MODELS_KEY, mArtistModels);
   }
 }
