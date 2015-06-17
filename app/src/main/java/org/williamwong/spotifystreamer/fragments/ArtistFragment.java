@@ -36,7 +36,7 @@ import retrofit.client.Response;
 /**
  * A fragment containing a search bar and a list of results.
  */
-public class SearchArtistFragment extends Fragment {
+public class ArtistFragment extends Fragment {
 
   public static final int MIN_THUMBNAIL_WIDTH = 200;
   public static final String ARTIST_MODELS_KEY = "artistsModels";
@@ -45,13 +45,13 @@ public class SearchArtistFragment extends Fragment {
   private ArrayList<ArtistModel> mArtistModels;
   private ArtistAdapter mArtistAdapter;
 
-  public SearchArtistFragment() {
+  public ArtistFragment() {
   }
 
   @Override
   public View onCreateView(LayoutInflater inflater, ViewGroup container,
                            Bundle savedInstanceState) {
-    View view = inflater.inflate(R.layout.fragment_main, container, false);
+    View view = inflater.inflate(R.layout.fragment_artist, container, false);
 
     if (savedInstanceState != null &&
         savedInstanceState.getParcelableArrayList(ARTIST_MODELS_KEY)!= null) {

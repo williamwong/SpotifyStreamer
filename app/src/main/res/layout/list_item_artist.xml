@@ -4,16 +4,16 @@
               android:orientation="horizontal"
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
-              android:padding="@dimen/abc_list_item_padding_horizontal_material">
+              android:padding="@dimen/list_item_padding">
 
   <ImageView
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:id="@+id/artistThumbnailImageView"
-    android:minHeight="72dp"
-    android:minWidth="72dp"
-    android:layout_marginRight="@dimen/abc_list_item_padding_horizontal_material"
-    android:layout_marginEnd="@dimen/abc_list_item_padding_horizontal_material"/>
+    android:minHeight="@dimen/thumbnail_height"
+    android:minWidth="@dimen/thumbnail_width"
+    android:layout_marginRight="@dimen/list_item_padding"
+    android:layout_marginEnd="@dimen/list_item_padding"/>
 
   <TextView
     android:layout_width="0dp"

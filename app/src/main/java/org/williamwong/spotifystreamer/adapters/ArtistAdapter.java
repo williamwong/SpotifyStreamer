@@ -41,7 +41,7 @@ public class ArtistAdapter extends ArrayAdapter<ArtistModel> {
     ViewHolder viewHolder;
     if (convertView == null) {
       convertView = LayoutInflater.from(getContext())
-          .inflate(R.layout.list_item_artist_search, parent, false);
+          .inflate(R.layout.list_item_artist, parent, false);
       viewHolder = new ViewHolder(convertView);
       convertView.setTag(viewHolder);
     } else {
