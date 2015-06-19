@@ -113,6 +113,7 @@ public class ArtistFragment extends Fragment {
     for (Artist artist : artistsPager.artists.items) {
       ArtistModel artistModel = new ArtistModel();
       artistModel.setName(artist.name);
+      artistModel.setSpotifyId(artist.id);
 
       List<Image> images = artist.images;
       if(images != null && !images.isEmpty()) {
@@ -142,5 +143,9 @@ public class ArtistFragment extends Fragment {
   public void onSaveInstanceState(Bundle outState) {
     super.onSaveInstanceState(outState);
     outState.putParcelableArrayList(ARTIST_MODELS_KEY, mArtistModels);
+  }
+
+  public interface Callbacks {
+    void onArtistSelected(String id);
   }
 }
