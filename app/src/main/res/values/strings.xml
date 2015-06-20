@@ -4,6 +4,7 @@
 
   <!-- Artist Fragment -->
   <string name="hint_search_artist">Enter artist name</string>
+  <string name="error_no_artists_found">No artists found with that name. Try searching again for another artist?</string>
 
   <!-- Track Fragment -->
   <string name="title_activity_track">Top 10 Tracks</string>

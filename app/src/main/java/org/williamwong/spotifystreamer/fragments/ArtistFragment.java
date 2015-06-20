@@ -16,6 +16,7 @@ import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.williamwong.spotifystreamer.R;
 import org.williamwong.spotifystreamer.adapters.ArtistAdapter;
@@ -109,8 +110,9 @@ public class ArtistFragment extends Fragment {
           @Override
           public void run() {
             updateArtists(artistsPager);
+            }
           }
-        });
+        );
       }
 
       @Override
@@ -122,30 +124,37 @@ public class ArtistFragment extends Fragment {
 
   private void updateArtists(ArtistsPager artistsPager) {
     mArtistModels.clear();
-    for (Artist artist : artistsPager.artists.items) {
-      ArtistModel artistModel = new ArtistModel();
-      artistModel.setName(artist.name);
-      artistModel.setSpotifyId(artist.id);
+    if (artistsPager.artists.total > 0) {
+      for (Artist artist : artistsPager.artists.items) {
+        ArtistModel artistModel = new ArtistModel();
+        artistModel.setName(artist.name);
+        artistModel.setSpotifyId(artist.id);
 
-      List<Image> images = artist.images;
-      if(images != null && !images.isEmpty()) {
-        int imageIndex = 0;
-        for (int i = 0; i < images.size(); i++) {
-          boolean isLast = (i + 1 == images.size());
-          if (isLast) {
-            imageIndex = i;
-            break;
-          } else if (images.get(i + 1).width < MIN_THUMBNAIL_WIDTH) {
-            imageIndex = i;
-            break;
+        List<Image> images = artist.images;
+        if(images != null && !images.isEmpty()) {
+          int imageIndex = 0;
+          for (int i = 0; i < images.size(); i++) {
+            boolean isLast = (i + 1 == images.size());
+            if (isLast) {
+              imageIndex = i;
+              break;
+            } else if (images.get(i + 1).width < MIN_THUMBNAIL_WIDTH) {
+              imageIndex = i;
+              break;
+            }
           }
+          artistModel.setImageUrl(images.get(imageIndex).url);
         }
-        artistModel.setImageUrl(images.get(imageIndex).url);
+
+        // TODO add placeholder image
+
+        mArtistModels.add(artistModel);
       }
-
-      // TODO add placeholder image
-
-      mArtistModels.add(artistModel);
+    } else {
+      Toast.makeText(getActivity(),
+          getString(R.string.error_no_artists_found),
+          Toast.LENGTH_SHORT)
+          .show();
     }
 
     mArtistAdapter.notifyDataSetChanged();
