@@ -28,6 +28,8 @@ public class TrackActivity extends AppCompatActivity {
       mTrackFragment = TrackFragment.newInstance(spotifyId, artistName);
     }
 
+    getSupportActionBar().setSubtitle(artistName);
+
     FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
     ft.replace(R.id.tracksContainer, mTrackFragment, TRACK_FRAGMENT_TAG);
     ft.commit();
