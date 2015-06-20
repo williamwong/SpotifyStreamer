@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import org.williamwong.spotifystreamer.R;
 import org.williamwong.spotifystreamer.adapters.TrackAdapter;
@@ -106,7 +107,15 @@ public class TrackFragment extends Fragment {
 
       @Override
       public void failure(RetrofitError error) {
-
+        handler.post(new Runnable() {
+          @Override
+          public void run() {
+            Toast.makeText(getActivity(),
+                getString(R.string.error_network),
+                Toast.LENGTH_SHORT)
+                .show();
+          }
+        });
       }
     });
   }

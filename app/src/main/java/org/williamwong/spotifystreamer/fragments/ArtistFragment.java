@@ -117,7 +117,15 @@ public class ArtistFragment extends Fragment {
 
       @Override
       public void failure(RetrofitError error) {
-
+        handler.post(new Runnable() {
+          @Override
+          public void run() {
+            Toast.makeText(getActivity(),
+                getString(R.string.error_network),
+                Toast.LENGTH_SHORT)
+                .show();
+          }
+        });
       }
     });
   }
