@@ -1,28 +1,44 @@
 package org.williamwong.spotifystreamer.activities;
 
-import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import org.williamwong.spotifystreamer.R;
-import org.williamwong.spotifystreamer.fragments.ArtistFragment;
 import org.williamwong.spotifystreamer.fragments.TrackFragment;
 
-public class MainActivity extends AppCompatActivity implements ArtistFragment.Callbacks{
+public class TrackActivity extends AppCompatActivity {
+
+  private static final String TRACK_FRAGMENT_TAG = "trackFragment";
+  private TrackFragment mTrackFragment;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    setContentView(R.layout.activity_main);
+    setContentView(R.layout.activity_track);
+
+    String spotifyId = getIntent().getStringExtra(TrackFragment.SPOTIFY_ID);
+    String artistName = getIntent().getStringExtra(TrackFragment.ARTIST_NAME);
+
+    if (savedInstanceState != null) {
+      mTrackFragment = (TrackFragment) getSupportFragmentManager().findFragmentByTag(TRACK_FRAGMENT_TAG);
+    } else if (mTrackFragment == null) {
+      mTrackFragment = TrackFragment.newInstance(spotifyId, artistName);
+    }
+
+    FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+    ft.replace(R.id.tracksContainer, mTrackFragment, TRACK_FRAGMENT_TAG);
+    ft.commit();
+
   }
 
 
   @Override
   public boolean onCreateOptionsMenu(Menu menu) {
     // Inflate the menu; this adds items to the action bar if it is present.
-    getMenuInflater().inflate(R.menu.menu_main, menu);
+    getMenuInflater().inflate(R.menu.menu_track, menu);
     return true;
   }
 
@@ -39,13 +55,5 @@ public class MainActivity extends AppCompatActivity implements ArtistFragment.Ca
     }
 
     return super.onOptionsItemSelected(item);
-  }
-
-  @Override
-  public void onArtistSelected(String spotifyId, String artistName) {
-    Intent trackIntent = new Intent(this, TrackActivity.class);
-    trackIntent.putExtra(TrackFragment.SPOTIFY_ID, spotifyId);
-    trackIntent.putExtra(TrackFragment.ARTIST_NAME, artistName);
-    startActivity(trackIntent);
   }
 }

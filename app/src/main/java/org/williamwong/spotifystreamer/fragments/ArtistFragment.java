@@ -1,5 +1,6 @@
 package org.williamwong.spotifystreamer.fragments;
 
+import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
@@ -11,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -44,6 +46,7 @@ public class ArtistFragment extends Fragment {
   private SpotifyService mSpotify = new SpotifyApi().getService();
   private ArrayList<ArtistModel> mArtistModels;
   private ArtistAdapter mArtistAdapter;
+  private Callbacks mCallbacks;
 
   public ArtistFragment() {
   }
@@ -63,6 +66,15 @@ public class ArtistFragment extends Fragment {
     ListView artistsListView = (ListView) view.findViewById(R.id.artistsListView);
     mArtistAdapter = new ArtistAdapter(getActivity(), mArtistModels);
     artistsListView.setAdapter(mArtistAdapter);
+    artistsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+      @Override
+      public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        if (mCallbacks != null) {
+          ArtistModel artist = mArtistModels.get(position);
+          mCallbacks.onArtistSelected(artist.getSpotifyId(), artist.getName());
+        }
+      }
+    });
 
     EditText searchArtistEditText = (EditText) view.findViewById(R.id.searchArtistEditText);
     searchArtistEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -145,7 +157,25 @@ public class ArtistFragment extends Fragment {
     outState.putParcelableArrayList(ARTIST_MODELS_KEY, mArtistModels);
   }
 
+  @Override
+  public void onAttach(Activity activity) {
+    super.onAttach(activity);
+
+    if (!(activity instanceof Callbacks)) {
+      throw new IllegalStateException("Activity must implement fragment's callbacks.");
+    }
+
+    mCallbacks = (Callbacks) activity;
+  }
+
+  @Override
+  public void onDetach() {
+    super.onDetach();
+
+    mCallbacks = null;
+  }
+
   public interface Callbacks {
-    void onArtistSelected(String id);
+    void onArtistSelected(String spotifyId, String artistName);
   }
 }

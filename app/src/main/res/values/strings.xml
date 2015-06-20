@@ -2,6 +2,9 @@
   <string name="app_name">Spotify Streamer</string>
   <string name="action_settings">Settings</string>
 
-  <!-- Search Artist Fragment -->
+  <!-- Artist Fragment -->
   <string name="hint_search_artist">Enter artist name</string>
+
+  <!-- Track Fragment -->
+  <string name="title_activity_track">Top 10 Tracks</string>
 </resources>
