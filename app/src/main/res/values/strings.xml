@@ -1,5 +1,13 @@
 <resources>
-  <string name="app_name">SpotifyStreamer</string>
-  <string name="hello_world">Hello world!</string>
+  <string name="app_name">Spotify Streamer</string>
   <string name="action_settings">Settings</string>
+
+  <!-- Artist Fragment -->
+  <string name="hint_search_artist">Enter artist name</string>
+  <string name="error_no_artists_found">No artists found with that name. Try searching again for another artist?</string>
+  <string name="error_network">Search failed. Check your internet connection?</string>
+
+  <!-- Track Fragment -->
+  <string name="title_activity_track">Top 10 Tracks</string>
+  <string name="error_no_tracks_found">No tracks available for this artist. Try another?</string>
 </resources>
