@@ -9,31 +9,34 @@ import org.williamwong.spotifystreamer.fragments.TrackFragment;
 
 public class TrackActivity extends AppCompatActivity {
 
-  private static final String TRACK_FRAGMENT_TAG = "trackFragment";
-  private TrackFragment mTrackFragment;
+    private static final String TRACK_FRAGMENT_TAG = "trackFragment";
+    private TrackFragment mTrackFragment;
 
-  @Override
-  protected void onCreate(Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-    setContentView(R.layout.activity_track);
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_track);
 
-    String spotifyId = getIntent().getStringExtra(MainActivity.SPOTIFY_ID_KEY);
-    String artistName = getIntent().getStringExtra(MainActivity.ARTIST_NAME_KEY);
+        // Retrieve arguments from intent
+        String spotifyId = getIntent().getStringExtra(MainActivity.SPOTIFY_ID_KEY);
+        String artistName = getIntent().getStringExtra(MainActivity.ARTIST_NAME_KEY);
 
-    if (savedInstanceState != null) {
-      mTrackFragment = (TrackFragment) getSupportFragmentManager().findFragmentByTag(TRACK_FRAGMENT_TAG);
-    } else if (mTrackFragment == null) {
-      mTrackFragment = TrackFragment.newInstance(spotifyId);
+        // Find fragment if exists. If not, create new instance of fragment
+        if (savedInstanceState != null) {
+            mTrackFragment = (TrackFragment) getSupportFragmentManager().findFragmentByTag(TRACK_FRAGMENT_TAG);
+        } else if (mTrackFragment == null) {
+            mTrackFragment = TrackFragment.newInstance(spotifyId);
+        }
+
+        // Set subtitle to be the artist name
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setSubtitle(artistName);
+        }
+
+        // Insert fragment into container
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        ft.replace(R.id.tracksContainer, mTrackFragment, TRACK_FRAGMENT_TAG);
+        ft.commit();
     }
-
-    if (getSupportActionBar() != null) {
-      getSupportActionBar().setSubtitle(artistName);
-    }
-
-    FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-    ft.replace(R.id.tracksContainer, mTrackFragment, TRACK_FRAGMENT_TAG);
-    ft.commit();
-
-  }
 
 }
