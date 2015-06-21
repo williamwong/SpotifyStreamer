@@ -9,7 +9,6 @@ import org.williamwong.spotifystreamer.fragments.TrackFragment;
 
 public class TrackActivity extends AppCompatActivity {
 
-    private static final String TRACK_FRAGMENT_TAG = "trackFragment";
     private TrackFragment mTrackFragment;
 
     @Override
@@ -23,7 +22,7 @@ public class TrackActivity extends AppCompatActivity {
 
         // Find fragment if exists. If not, create new instance of fragment
         if (savedInstanceState != null) {
-            mTrackFragment = (TrackFragment) getSupportFragmentManager().findFragmentByTag(TRACK_FRAGMENT_TAG);
+            mTrackFragment = (TrackFragment) getSupportFragmentManager().findFragmentByTag(MainActivity.TRACK_FRAGMENT_TAG);
         } else if (mTrackFragment == null) {
             mTrackFragment = TrackFragment.newInstance(spotifyId);
         }
@@ -35,7 +34,7 @@ public class TrackActivity extends AppCompatActivity {
 
         // Insert fragment into container
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        ft.replace(R.id.tracksContainer, mTrackFragment, TRACK_FRAGMENT_TAG);
+        ft.replace(R.id.tracksContainer, mTrackFragment, MainActivity.TRACK_FRAGMENT_TAG);
         ft.commit();
     }
 

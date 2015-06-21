@@ -50,6 +50,7 @@ public class ArtistFragment extends Fragment {
     private ArtistAdapter mArtistAdapter;
     private Callbacks mCallbacks;
     private ProgressBar mArtistProgressBar;
+    private ListView mArtistsListView;
 
     public ArtistFragment() {
     }
@@ -67,10 +68,10 @@ public class ArtistFragment extends Fragment {
             mArtistModels = new ArrayList<>();
         }
 
-        ListView artistsListView = (ListView) view.findViewById(R.id.artistsListView);
+        mArtistsListView = (ListView) view.findViewById(R.id.artistsListView);
         mArtistAdapter = new ArtistAdapter(getActivity(), mArtistModels);
-        artistsListView.setAdapter(mArtistAdapter);
-        artistsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        mArtistsListView.setAdapter(mArtistAdapter);
+        mArtistsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 if (mCallbacks != null) {
@@ -186,6 +187,12 @@ public class ArtistFragment extends Fragment {
         }
 
         mArtistAdapter.notifyDataSetChanged();
+    }
+
+    public void setActivateOnItemClick(boolean activateOnItemClick) {
+        mArtistsListView.setChoiceMode(activateOnItemClick ?
+                ListView.CHOICE_MODE_SINGLE :
+                ListView.CHOICE_MODE_NONE);
     }
 
     @Override
