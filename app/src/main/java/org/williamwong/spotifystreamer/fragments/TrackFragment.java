@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import org.williamwong.spotifystreamer.R;
@@ -30,7 +31,6 @@ import retrofit.client.Response;
 
 /**
  * A fragment containing a list of top ten tracks from an artist.
- * TODO Add artist name to ActionBar subtitle
  */
 public class TrackFragment extends Fragment {
 
@@ -45,6 +45,7 @@ public class TrackFragment extends Fragment {
   private TrackAdapter mTrackAdapter;
   private String mSpotifyId;
   private String mArtistName;
+  private ProgressBar mTrackProgressBar;
 
   public TrackFragment() {
   }
@@ -75,6 +76,8 @@ public class TrackFragment extends Fragment {
                            Bundle savedInstanceState) {
     View view = inflater.inflate(R.layout.fragment_track, container, false);
 
+    mTrackProgressBar = (ProgressBar) view.findViewById(R.id.trackProgressBar);
+
     if (savedInstanceState != null &&
         savedInstanceState.getParcelableArrayList(TRACK_MODELS_KEY) != null) {
       mTrackModels = savedInstanceState.getParcelableArrayList(TRACK_MODELS_KEY);
@@ -91,6 +94,8 @@ public class TrackFragment extends Fragment {
   }
 
   private void searchTracks(String mSpotifyId) {
+    mTrackProgressBar.setVisibility(View.VISIBLE);
+
     Map<String, Object> options = new HashMap<>();
     options.put("country", "US");
     mSpotify.getArtistTopTrack(mSpotifyId, options, new Callback<Tracks>() {
@@ -100,6 +105,7 @@ public class TrackFragment extends Fragment {
         handler.post(new Runnable() {
           @Override
           public void run() {
+            mTrackProgressBar.setVisibility(View.GONE);
             updateTracks(tracks.tracks);
           }
         });
@@ -110,6 +116,7 @@ public class TrackFragment extends Fragment {
         handler.post(new Runnable() {
           @Override
           public void run() {
+            mTrackProgressBar.setVisibility(View.GONE);
             Toast.makeText(getActivity(),
                 getString(R.string.error_network),
                 Toast.LENGTH_SHORT)

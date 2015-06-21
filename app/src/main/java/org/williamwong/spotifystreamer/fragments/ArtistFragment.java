@@ -15,6 +15,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -48,6 +49,7 @@ public class ArtistFragment extends Fragment {
   private ArrayList<ArtistModel> mArtistModels;
   private ArtistAdapter mArtistAdapter;
   private Callbacks mCallbacks;
+  private ProgressBar mArtistProgressBar;
 
   public ArtistFragment() {
   }
@@ -77,18 +79,19 @@ public class ArtistFragment extends Fragment {
       }
     });
 
+    // TODO Add clear button
     EditText searchArtistEditText = (EditText) view.findViewById(R.id.searchArtistEditText);
     searchArtistEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
       @Override
       public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
         boolean handled = false;
         if (actionId == EditorInfo.IME_ACTION_SEARCH) {
-          // Execute search
-          searchArtist(v.getText().toString());
-
           // Close keyboard
           ((InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE))
               .toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+
+          // Execute search
+          searchArtist(v.getText().toString());
 
           handled = true;
         }
@@ -96,10 +99,14 @@ public class ArtistFragment extends Fragment {
       }
     });
 
+    mArtistProgressBar = (ProgressBar) view.findViewById(R.id.artistProgressBar);
+
     return view;
   }
 
   private void searchArtist(String artist) {
+    mArtistProgressBar.setVisibility(View.VISIBLE);
+
     Map<String, Object> options = new HashMap<>();
     options.put("limit", 10);
     mSpotify.searchArtists(artist, options, new Callback<ArtistsPager>() {
@@ -109,6 +116,7 @@ public class ArtistFragment extends Fragment {
         handler.post(new Runnable() {
           @Override
           public void run() {
+            mArtistProgressBar.setVisibility(View.GONE);
             updateArtists(artistsPager);
             }
           }
@@ -120,6 +128,7 @@ public class ArtistFragment extends Fragment {
         handler.post(new Runnable() {
           @Override
           public void run() {
+            mArtistProgressBar.setVisibility(View.GONE);
             Toast.makeText(getActivity(),
                 getString(R.string.error_network),
                 Toast.LENGTH_SHORT)

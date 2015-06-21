@@ -1,4 +1,4 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
               xmlns:tools="http://schemas.android.com/tools"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
@@ -20,9 +20,17 @@
   <ListView
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    tools:listitem="list_item_artist_search"
+    android:layout_below="@id/searchArtistEditText"
+    tools:listitem="list_item_artist"
     android:id="@+id/artistsListView"
     android:divider="@color/background_material_light"
     android:dividerHeight="1dp"
     android:drawSelectorOnTop="false"/>
-</LinearLayout>
+
+  <ProgressBar
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:id="@+id/artistProgressBar"
+    android:visibility="gone"
+    android:layout_centerInParent="true"/>
+</RelativeLayout>

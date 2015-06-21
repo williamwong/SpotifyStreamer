@@ -15,4 +15,11 @@
     tools:listitem="list_item_track"
     android:id="@+id/tracksListView"/>
 
+  <ProgressBar
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:id="@+id/trackProgressBar"
+    android:visibility="gone"
+    android:layout_centerInParent="true"/>
+
 </RelativeLayout>
