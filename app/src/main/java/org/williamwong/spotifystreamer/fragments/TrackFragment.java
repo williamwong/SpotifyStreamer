@@ -129,28 +129,35 @@ public class TrackFragment extends Fragment {
 
   private void updateTracks(List<Track> tracks) {
     mTrackModels.clear();
-    for (Track track : tracks) {
-      TrackModel trackModel = new TrackModel();
-      trackModel.setTrackName(track.name);
-      trackModel.setAlbumName(track.album.name);
+    if (!tracks.isEmpty()) {
+      for (Track track : tracks) {
+        TrackModel trackModel = new TrackModel();
+        trackModel.setTrackName(track.name);
+        trackModel.setAlbumName(track.album.name);
 
-      List<Image> images = track.album.images;
-      if(images != null && !images.isEmpty()) {
-        int imageIndex = 0;
-        for (int i = 0; i < images.size(); i++) {
-          boolean isLast = (i + 1 == images.size());
-          if (isLast) {
-            imageIndex = i;
-            break;
-          } else if (images.get(i + 1).width < MIN_THUMBNAIL_WIDTH) {
-            imageIndex = i;
-            break;
+        List<Image> images = track.album.images;
+        if (images != null && !images.isEmpty()) {
+          int imageIndex = 0;
+          for (int i = 0; i < images.size(); i++) {
+            boolean isLast = (i + 1 == images.size());
+            if (isLast) {
+              imageIndex = i;
+              break;
+            } else if (images.get(i + 1).width < MIN_THUMBNAIL_WIDTH) {
+              imageIndex = i;
+              break;
+            }
           }
+          trackModel.setImageUrl(images.get(imageIndex).url);
         }
-        trackModel.setImageUrl(images.get(imageIndex).url);
+        // TODO set placeholder image
+        mTrackModels.add(trackModel);
       }
-      // TODO set placeholder image
-      mTrackModels.add(trackModel);
+    } else {
+      Toast.makeText(getActivity(),
+          getString(R.string.error_no_tracks_found),
+          Toast.LENGTH_SHORT)
+          .show();
     }
 
     mTrackAdapter.notifyDataSetChanged();

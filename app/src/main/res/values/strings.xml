@@ -9,4 +9,5 @@
 
   <!-- Track Fragment -->
   <string name="title_activity_track">Top 10 Tracks</string>
+  <string name="error_no_tracks_found">No tracks available for this artist. Try another?</string>
 </resources>
