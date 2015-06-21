@@ -17,16 +17,18 @@ public class TrackActivity extends AppCompatActivity {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_track);
 
-    String spotifyId = getIntent().getStringExtra(TrackFragment.SPOTIFY_ID);
-    String artistName = getIntent().getStringExtra(TrackFragment.ARTIST_NAME);
+    String spotifyId = getIntent().getStringExtra(MainActivity.SPOTIFY_ID_KEY);
+    String artistName = getIntent().getStringExtra(MainActivity.ARTIST_NAME_KEY);
 
     if (savedInstanceState != null) {
       mTrackFragment = (TrackFragment) getSupportFragmentManager().findFragmentByTag(TRACK_FRAGMENT_TAG);
     } else if (mTrackFragment == null) {
-      mTrackFragment = TrackFragment.newInstance(spotifyId, artistName);
+      mTrackFragment = TrackFragment.newInstance(spotifyId);
     }
 
-    getSupportActionBar().setSubtitle(artistName);
+    if (getSupportActionBar() != null) {
+      getSupportActionBar().setSubtitle(artistName);
+    }
 
     FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
     ft.replace(R.id.tracksContainer, mTrackFragment, TRACK_FRAGMENT_TAG);

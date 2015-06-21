@@ -6,9 +6,11 @@ import android.support.v7.app.AppCompatActivity;
 
 import org.williamwong.spotifystreamer.R;
 import org.williamwong.spotifystreamer.fragments.ArtistFragment;
-import org.williamwong.spotifystreamer.fragments.TrackFragment;
 
 public class MainActivity extends AppCompatActivity implements ArtistFragment.Callbacks{
+
+  public static final String SPOTIFY_ID_KEY = "spotifyId";
+  public static final String ARTIST_NAME_KEY = "artistName";
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -19,8 +21,8 @@ public class MainActivity extends AppCompatActivity implements ArtistFragment.Ca
   @Override
   public void onArtistSelected(String spotifyId, String artistName) {
     Intent trackIntent = new Intent(this, TrackActivity.class);
-    trackIntent.putExtra(TrackFragment.SPOTIFY_ID, spotifyId);
-    trackIntent.putExtra(TrackFragment.ARTIST_NAME, artistName);
+    trackIntent.putExtra(SPOTIFY_ID_KEY, spotifyId);
+    trackIntent.putExtra(ARTIST_NAME_KEY, artistName);
     startActivity(trackIntent);
   }
 }

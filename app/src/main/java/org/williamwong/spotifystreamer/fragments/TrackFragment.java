@@ -12,6 +12,7 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import org.williamwong.spotifystreamer.R;
+import org.williamwong.spotifystreamer.activities.MainActivity;
 import org.williamwong.spotifystreamer.adapters.TrackAdapter;
 import org.williamwong.spotifystreamer.models.TrackModel;
 
@@ -34,27 +35,22 @@ import retrofit.client.Response;
  */
 public class TrackFragment extends Fragment {
 
-
   public static final String TRACK_MODELS_KEY = "trackModels";
-  public static final String SPOTIFY_ID = "spotifyId";
-  public static final String ARTIST_NAME = "artistName";
   private static final int MIN_THUMBNAIL_WIDTH = 200;
 
   private SpotifyService mSpotify = new SpotifyApi().getService();
   private ArrayList<TrackModel> mTrackModels;
   private TrackAdapter mTrackAdapter;
   private String mSpotifyId;
-  private String mArtistName;
   private ProgressBar mTrackProgressBar;
 
   public TrackFragment() {
   }
 
-  public static TrackFragment newInstance(String spotifyId, String artistName) {
+  public static TrackFragment newInstance(String spotifyId) {
     TrackFragment trackFragment = new TrackFragment();
     Bundle args = new Bundle();
-    args.putSerializable(SPOTIFY_ID, spotifyId);
-    args.putSerializable(ARTIST_NAME, artistName);
+    args.putSerializable(MainActivity.SPOTIFY_ID_KEY, spotifyId);
     trackFragment.setArguments(args);
     return trackFragment;
   }
@@ -63,11 +59,8 @@ public class TrackFragment extends Fragment {
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
 
-    if (getArguments().containsKey(SPOTIFY_ID)) {
-      mSpotifyId = getArguments().getString(SPOTIFY_ID);
-    }
-    if (getArguments().containsKey(ARTIST_NAME)) {
-      mArtistName = getArguments().getString(ARTIST_NAME);
+    if (getArguments().containsKey(MainActivity.SPOTIFY_ID_KEY)) {
+      mSpotifyId = getArguments().getString(MainActivity.SPOTIFY_ID_KEY);
     }
   }
 
