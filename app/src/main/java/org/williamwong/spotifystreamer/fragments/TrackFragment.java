@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.v4.app.Fragment;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,6 +26,7 @@ import java.util.Map;
 
 import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyService;
+import kaaes.spotify.webapi.android.models.ArtistSimple;
 import kaaes.spotify.webapi.android.models.Image;
 import kaaes.spotify.webapi.android.models.Track;
 import kaaes.spotify.webapi.android.models.Tracks;
@@ -149,7 +151,6 @@ public class TrackFragment extends Fragment {
                 TrackModel trackModel = new TrackModel();
                 trackModel.setTrackName(track.name);
                 trackModel.setAlbumName(track.album.name);
-                trackModel.setArtistName(track.artists.get(0).name);
                 trackModel.setPreviewUrl(track.preview_url);
 
                 List<Image> images = track.album.images;
@@ -168,6 +169,13 @@ public class TrackFragment extends Fragment {
                     }
                     trackModel.setImageUrl(images.get(imageIndex).url);
                 }
+
+                List<String> artistNames = new ArrayList<>();
+                for (ArtistSimple artist : track.artists) {
+                    artistNames.add(artist.name);
+                }
+                trackModel.setArtistName(TextUtils.join(", ", artistNames));
+
                 // TODO set placeholder image
                 mTrackModels.add(trackModel);
             }
