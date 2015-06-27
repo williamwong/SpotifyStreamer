@@ -1,5 +1,6 @@
 package org.williamwong.spotifystreamer.fragments;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -7,6 +8,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -43,6 +45,7 @@ public class TrackFragment extends Fragment {
     private TrackAdapter mTrackAdapter;
     private String mSpotifyId;
     private ProgressBar mTrackProgressBar;
+    private Callbacks mCallbacks;
 
     public TrackFragment() {
     }
@@ -82,6 +85,15 @@ public class TrackFragment extends Fragment {
         ListView trackListView = (ListView) view.findViewById(R.id.tracksListView);
         mTrackAdapter = new TrackAdapter(getActivity(), mTrackModels);
         trackListView.setAdapter(mTrackAdapter);
+        trackListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+                if (mCallbacks != null) {
+                    TrackModel trackModel = mTrackModels.get(position);
+                    mCallbacks.onTrackSelected(trackModel);
+                }
+            }
+        });
 
         return view;
     }
@@ -138,6 +150,8 @@ public class TrackFragment extends Fragment {
                 TrackModel trackModel = new TrackModel();
                 trackModel.setTrackName(track.name);
                 trackModel.setAlbumName(track.album.name);
+                trackModel.setArtistName(track.artists.get(0).name);
+                trackModel.setPreviewUrl(track.preview_url);
 
                 List<Image> images = track.album.images;
                 if (images != null && !images.isEmpty()) {
@@ -171,5 +185,27 @@ public class TrackFragment extends Fragment {
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putParcelableArrayList(TRACK_MODELS_KEY, mTrackModels);
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+
+        if (!(activity instanceof Callbacks)) {
+            throw new IllegalStateException("Activity must implement fragment's callbacks.");
+        }
+
+        mCallbacks = (Callbacks) activity;
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+
+        mCallbacks = null;
+    }
+
+    public interface Callbacks {
+        void onTrackSelected(TrackModel trackModel);
     }
 }

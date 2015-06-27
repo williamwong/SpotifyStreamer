@@ -1,13 +1,15 @@
 package org.williamwong.spotifystreamer.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 
 import org.williamwong.spotifystreamer.R;
 import org.williamwong.spotifystreamer.fragments.TrackFragment;
+import org.williamwong.spotifystreamer.models.TrackModel;
 
-public class TrackActivity extends AppCompatActivity {
+public class TrackActivity extends AppCompatActivity implements TrackFragment.Callbacks {
 
     private TrackFragment mTrackFragment;
 
@@ -38,4 +40,12 @@ public class TrackActivity extends AppCompatActivity {
         ft.commit();
     }
 
+    @Override
+    public void onTrackSelected(TrackModel trackModel) {
+        // Only runs in single pane mode since TrackActivity only exists
+        // on a phone.
+        Intent playerIntent = new Intent(this, PlayerActivity.class);
+        playerIntent.putExtra(MainActivity.TRACK_MODEL_KEY, trackModel);
+        startActivity(playerIntent);
+    }
 }

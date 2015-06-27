@@ -1,13 +1,21 @@
 <resources>
-  <string name="app_name">Spotify Streamer</string>
-  <string name="action_settings">Settings</string>
+    <string name="app_name">Spotify Streamer</string>
+    <string name="action_settings">Settings</string>
 
-  <!-- Artist Fragment -->
-  <string name="hint_search_artist">Enter artist name</string>
-  <string name="error_no_artists_found">No artists found with that name. Try searching again for another artist?</string>
-  <string name="error_network">Search failed. Check your internet connection?</string>
+    <!-- Artist Fragment -->
+    <string name="hint_search_artist">Enter artist name</string>
+    <string name="error_no_artists_found">No artists found with that name. Try searching again for another artist?</string>
+    <string name="error_network">Search failed. Check your internet connection?</string>
 
-  <!-- Track Fragment -->
-  <string name="title_activity_track">Top 10 Tracks</string>
-  <string name="error_no_tracks_found">No tracks available for this artist. Try another?</string>
+    <!-- Track Fragment -->
+    <string name="title_activity_track">Top 10 Tracks</string>
+    <string name="error_no_tracks_found">No tracks available for this artist. Try another?</string>
+    <string name="description_album_thumbnail">Album art</string>
+
+    <!-- Player Fragment -->
+    <string name="title_now_playing">Now Playing</string>
+    <string name="description_previous">Previous</string>
+    <string name="description_play_pause">Play/Pause</string>
+    <string name="description_next">Next</string>
+    <string name="description_album_art">Album art</string>
 </resources>

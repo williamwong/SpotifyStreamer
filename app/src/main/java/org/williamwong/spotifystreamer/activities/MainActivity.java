@@ -8,13 +8,17 @@ import android.widget.FrameLayout;
 
 import org.williamwong.spotifystreamer.R;
 import org.williamwong.spotifystreamer.fragments.ArtistFragment;
+import org.williamwong.spotifystreamer.fragments.PlayerFragment;
 import org.williamwong.spotifystreamer.fragments.TrackFragment;
+import org.williamwong.spotifystreamer.models.TrackModel;
 
-public class MainActivity extends AppCompatActivity implements ArtistFragment.Callbacks {
+public class MainActivity extends AppCompatActivity implements ArtistFragment.Callbacks, TrackFragment.Callbacks {
 
     public static final String SPOTIFY_ID_KEY = "spotifyId";
     public static final String ARTIST_NAME_KEY = "artistName";
+    public static final String TRACK_MODEL_KEY = "trackModel";
     public static final String TRACK_FRAGMENT_TAG = "trackFragment";
+    public static final String PLAYER_FRAGMENT_DIALOG_TAG = "playerFragment";
 
     private boolean mIsTwoPane = false;
 
@@ -55,5 +59,13 @@ public class MainActivity extends AppCompatActivity implements ArtistFragment.Ca
             trackIntent.putExtra(ARTIST_NAME_KEY, artistName);
             startActivity(trackIntent);
         }
+    }
+
+    @Override
+    public void onTrackSelected(TrackModel trackModel) {
+        // Only runs in two pane mode, since MainActivity will only host the
+        // TrackFragment if on a tablet.
+        PlayerFragment playerFragment = PlayerFragment.newInstance(trackModel);
+        playerFragment.show(getSupportFragmentManager(), PLAYER_FRAGMENT_DIALOG_TAG);
     }
 }
