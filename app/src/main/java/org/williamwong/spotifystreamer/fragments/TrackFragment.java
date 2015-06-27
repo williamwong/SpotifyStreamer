@@ -38,7 +38,6 @@ import retrofit.client.Response;
 public class TrackFragment extends Fragment {
 
     public static final String TRACK_MODELS_KEY = "trackModels";
-    private static final int MIN_THUMBNAIL_WIDTH = 200;
 
     private SpotifyService mSpotify = new SpotifyApi().getService();
     private ArrayList<TrackModel> mTrackModels;
@@ -161,7 +160,8 @@ public class TrackFragment extends Fragment {
                         if (isLast) {
                             imageIndex = i;
                             break;
-                        } else if (images.get(i + 1).width < MIN_THUMBNAIL_WIDTH) {
+                        } else if (images.get(i + 1).width < getResources()
+                                .getInteger(R.integer.min_thumbnail_pixel_width)) {
                             imageIndex = i;
                             break;
                         }
