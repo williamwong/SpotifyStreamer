@@ -1,6 +1,8 @@
 package org.williamwong.spotifystreamer.fragments;
 
 import android.app.Dialog;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -18,6 +20,8 @@ import com.squareup.picasso.Picasso;
 import org.williamwong.spotifystreamer.R;
 import org.williamwong.spotifystreamer.activities.MainActivity;
 import org.williamwong.spotifystreamer.models.TrackModel;
+
+import java.io.IOException;
 
 /**
  * Fragment for displaying track info and playing preview track
@@ -74,9 +78,39 @@ public class PlayerFragment extends DialogFragment {
                     .load(mTrackModel.getImageUrl())
                     .fit().centerCrop()
                     .into(albumImageView);
+
+            playPauseButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    playMusic(mTrackModel.getPreviewUrl());
+                }
+            });
         }
 
         return view;
+    }
+
+    private void playMusic(String previewUrl) {
+        MediaPlayer mediaPlayer = new MediaPlayer();
+        mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+        try {
+            mediaPlayer.setDataSource(previewUrl);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        mediaPlayer.setOnErrorListener(new MediaPlayer.OnErrorListener() {
+            @Override
+            public boolean onError(MediaPlayer mediaPlayer, int i, int i1) {
+                return false;
+            }
+        });
+        mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+            @Override
+            public void onPrepared(MediaPlayer mediaPlayer) {
+                mediaPlayer.start();
+            }
+        });
+        mediaPlayer.prepareAsync();
     }
 
     @Override
