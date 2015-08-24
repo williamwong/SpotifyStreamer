@@ -90,8 +90,7 @@ public class TrackFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
                 if (mCallbacks != null) {
-                    TrackModel trackModel = mTrackModels.get(position);
-                    mCallbacks.onTrackSelected(trackModel);
+                    mCallbacks.onTrackSelected(mTrackModels, position);
                 }
             }
         });
@@ -214,6 +213,6 @@ public class TrackFragment extends Fragment {
     }
 
     public interface Callbacks {
-        void onTrackSelected(TrackModel trackModel);
+        void onTrackSelected(List<TrackModel> trackModels, int position);
     }
 }

@@ -12,6 +12,8 @@ import org.williamwong.spotifystreamer.fragments.PlayerFragment;
 import org.williamwong.spotifystreamer.fragments.TrackFragment;
 import org.williamwong.spotifystreamer.models.TrackModel;
 
+import java.util.List;
+
 public class MainActivity extends AppCompatActivity implements ArtistFragment.Callbacks, TrackFragment.Callbacks {
 
     public static final String SPOTIFY_ID_KEY = "spotifyId";
@@ -62,9 +64,10 @@ public class MainActivity extends AppCompatActivity implements ArtistFragment.Ca
     }
 
     @Override
-    public void onTrackSelected(TrackModel trackModel) {
+    public void onTrackSelected(List<TrackModel> trackModels, int position) {
         // Only runs in two pane mode, since MainActivity will only host the
         // TrackFragment if on a tablet.
+        TrackModel trackModel = trackModels.get(position);
         PlayerFragment playerFragment = PlayerFragment.newInstance(trackModel);
         playerFragment.show(getSupportFragmentManager(), PLAYER_FRAGMENT_DIALOG_TAG);
     }
