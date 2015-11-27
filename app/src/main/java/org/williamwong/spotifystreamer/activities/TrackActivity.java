@@ -8,7 +8,9 @@ import android.support.v7.app.AppCompatActivity;
 import org.williamwong.spotifystreamer.R;
 import org.williamwong.spotifystreamer.fragments.TrackFragment;
 import org.williamwong.spotifystreamer.models.TrackModel;
+import org.williamwong.spotifystreamer.services.MusicService;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class TrackActivity extends AppCompatActivity implements TrackFragment.Callbacks {
@@ -46,9 +48,15 @@ public class TrackActivity extends AppCompatActivity implements TrackFragment.Ca
     public void onTrackSelected(List<TrackModel> trackModels, int position) {
         // Only runs in single pane mode since TrackActivity only exists
         // on a phone.
-        TrackModel trackModel = trackModels.get(position);
-        Intent playerIntent = new Intent(this, PlayerActivity.class);
-        playerIntent.putExtra(MainActivity.TRACK_MODEL_KEY, trackModel);
-        startActivity(playerIntent);
+
+        Intent musicIntent = new Intent(this, MusicService.class);
+        musicIntent.putParcelableArrayListExtra(MusicService.EXTRA_TRACK_MODELS, (ArrayList<TrackModel>) trackModels);
+        musicIntent.putExtra(MusicService.EXTRA_CURRENT_TRACK, position);
+        startService(musicIntent);
+
+//        TrackModel trackModel = trackModels.get(position);
+//        Intent playerIntent = new Intent(this, PlayerActivity.class);
+//        playerIntent.putExtra(MainActivity.TRACK_MODEL_KEY, trackModel);
+//        startActivity(playerIntent);
     }
 }
