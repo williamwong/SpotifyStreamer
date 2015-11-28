@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.IBinder;
-import android.util.Log;
 
 import org.williamwong.spotifystreamer.models.TrackModel;
 
@@ -15,14 +14,12 @@ import java.util.List;
 public class MusicService extends Service implements MediaPlayer.OnPreparedListener,
         MediaPlayer.OnErrorListener, MediaPlayer.OnBufferingUpdateListener {
 
-    public static final String EXTRA_TRACK_MODELS = "org.williamwong.spotifystreamer.TRACK_MODELS";
-    public static final String EXTRA_CURRENT_TRACK = "org.williamwong.spotifystreamer.CURRENT_TRACK";
-
     private static MusicService sMusicService;
 
     private MediaPlayer mMediaPlayer = null;
     private List<TrackModel> mTrackModels;
     private int mCurrentTrack;
+    private State mState = State.INITIALIZING;
 
     public MusicService() {
     }
@@ -42,15 +39,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     }
 
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.d("MusicService", "MusicService has started");
-        if (intent.getExtras() != null) {
-            mTrackModels = intent.getParcelableArrayListExtra(EXTRA_TRACK_MODELS);
-            mCurrentTrack = intent.getIntExtra(EXTRA_CURRENT_TRACK, 0);
-            initMediaPlayer();
-
-            if (mMediaPlayer.isPlaying()) mMediaPlayer.stop();
-            playSong();
-        }
+        initMediaPlayer();
         return START_STICKY;
     }
 
@@ -62,21 +51,39 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
     }
 
-    private void playSong() {
+    public void playSong() {
+        if (mState == State.PAUSED) {
+            mMediaPlayer.start();
+            return;
+        }
+
+        if (mState == State.PLAYING) {
+            stopSong();
+        }
+
         try {
             mMediaPlayer.setDataSource(mTrackModels.get(mCurrentTrack).getPreviewUrl());
         } catch (IOException e) {
             e.printStackTrace();
         }
         mMediaPlayer.prepareAsync();
+        mState = State.PREPARING;
     }
 
     public void pauseSong() {
         mMediaPlayer.pause();
+        mState = State.PAUSED;
+    }
+
+    private void stopSong() {
+        mMediaPlayer.stop();
+        mMediaPlayer.reset();
+        mState = State.STOPPED;
     }
 
     public void nextSong() {
-        if (mCurrentTrack < mTrackModels.size()) {
+        if (mCurrentTrack < mTrackModels.size() - 1) {
+            stopSong();
             mCurrentTrack++;
             playSong();
         }
@@ -84,6 +91,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
 
     public void previousSong() {
         if (mCurrentTrack > 0) {
+            stopSong();
             mCurrentTrack--;
             playSong();
         }
@@ -97,6 +105,18 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         }
     }
 
+    public boolean isPlaying() {
+        return mMediaPlayer != null && mMediaPlayer.isPlaying();
+    }
+
+    public void setTrackModels(List<TrackModel> trackModels) {
+        mTrackModels = trackModels;
+    }
+
+    public void setCurrentTrack(int currentTrack) {
+        mCurrentTrack = currentTrack;
+    }
+
     @Override
     public IBinder onBind(Intent intent) {
         return null;
@@ -105,11 +125,14 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     @Override
     public void onDestroy() {
         super.onDestroy();
+        if (mMediaPlayer != null) mMediaPlayer.release();
+        mMediaPlayer = null;
     }
 
     @Override
     public void onPrepared(MediaPlayer mediaPlayer) {
         mediaPlayer.start();
+        mState = State.PLAYING;
     }
 
     @Override
@@ -120,5 +143,13 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     @Override
     public boolean onError(MediaPlayer mediaPlayer, int what, int extra) {
         return false;
+    }
+
+    enum State {
+        INITIALIZING,
+        PREPARING,
+        PLAYING,
+        PAUSED,
+        STOPPED
     }
 }

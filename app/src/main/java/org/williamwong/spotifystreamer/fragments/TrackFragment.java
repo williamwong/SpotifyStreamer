@@ -1,6 +1,6 @@
 package org.williamwong.spotifystreamer.fragments;
 
-import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -18,6 +18,7 @@ import org.williamwong.spotifystreamer.R;
 import org.williamwong.spotifystreamer.activities.MainActivity;
 import org.williamwong.spotifystreamer.adapters.TrackAdapter;
 import org.williamwong.spotifystreamer.models.TrackModel;
+import org.williamwong.spotifystreamer.services.MusicService;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -89,9 +90,15 @@ public class TrackFragment extends Fragment {
         trackListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-                if (mCallbacks != null) {
-                    mCallbacks.onTrackSelected(mTrackModels, position);
+                MusicService service = MusicService.getMusicService();
+                if (service != null && mCallbacks != null) {
+                    service.setTrackModels(mTrackModels);
+                    service.setCurrentTrack(position);
+                    // Launch PlayerFragment and/or Activity
+                    mCallbacks.onTrackSelected();
+                    service.playSong();
                 }
+
             }
         });
 
@@ -195,14 +202,14 @@ public class TrackFragment extends Fragment {
     }
 
     @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
+    public void onAttach(Context context) {
+        super.onAttach(context);
 
-        if (!(activity instanceof Callbacks)) {
+        if (!(context instanceof Callbacks)) {
             throw new IllegalStateException("Activity must implement fragment's callbacks.");
         }
 
-        mCallbacks = (Callbacks) activity;
+        mCallbacks = (Callbacks) context;
     }
 
     @Override
@@ -213,6 +220,6 @@ public class TrackFragment extends Fragment {
     }
 
     public interface Callbacks {
-        void onTrackSelected(List<TrackModel> trackModels, int position);
+        void onTrackSelected();
     }
 }

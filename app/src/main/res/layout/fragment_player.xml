@@ -89,7 +89,7 @@
             android:layout_margin="8dp"
             android:layout_weight="1"
             android:contentDescription="@string/description_play_pause"
-            android:src="@android:drawable/ic_media_play" />
+            android:src="@android:drawable/ic_media_pause"/>
 
         <ImageButton
             android:id="@+id/nextButton"

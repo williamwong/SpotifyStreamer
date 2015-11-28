@@ -17,15 +17,12 @@ public class PlayerActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_player);
 
-        // Retrieve arguments from intent
-        TrackModel trackModel = getIntent().getParcelableExtra(MainActivity.TRACK_MODEL_KEY);
-
         // Find fragment if exists. If not, create new instance of fragment
         if (savedInstanceState != null) {
             mPlayerFragment = (PlayerFragment) getSupportFragmentManager()
                     .findFragmentByTag(MainActivity.PLAYER_FRAGMENT_DIALOG_TAG);
         } else if (mPlayerFragment == null) {
-            mPlayerFragment = PlayerFragment.newInstance(trackModel);
+            mPlayerFragment = PlayerFragment.newInstance();
         }
 
         // Insert fragment into container

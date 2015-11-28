@@ -4,17 +4,13 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.widget.FrameLayout;
 
 import org.williamwong.spotifystreamer.R;
 import org.williamwong.spotifystreamer.fragments.ArtistFragment;
 import org.williamwong.spotifystreamer.fragments.PlayerFragment;
 import org.williamwong.spotifystreamer.fragments.TrackFragment;
-import org.williamwong.spotifystreamer.models.TrackModel;
-import org.williamwong.spotifystreamer.services.MusicService;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements ArtistFragment.Callbacks, TrackFragment.Callbacks {
 
@@ -66,17 +62,12 @@ public class MainActivity extends AppCompatActivity implements ArtistFragment.Ca
     }
 
     @Override
-    public void onTrackSelected(List<TrackModel> trackModels, int position) {
+    public void onTrackSelected() {
         // Only runs in two pane mode, since MainActivity will only host the
         // TrackFragment if on a tablet.
 
-        Intent musicIntent = new Intent(this, MusicService.class);
-        musicIntent.putParcelableArrayListExtra(MusicService.EXTRA_TRACK_MODELS, (ArrayList<TrackModel>) trackModels);
-        musicIntent.putExtra(MusicService.EXTRA_CURRENT_TRACK, position);
-        startService(musicIntent);
-
-//        TrackModel trackModel = trackModels.get(position);
-//        PlayerFragment playerFragment = PlayerFragment.newInstance(trackModel);
-//        playerFragment.show(getSupportFragmentManager(), PLAYER_FRAGMENT_DIALOG_TAG);
+        PlayerFragment playerFragment = PlayerFragment.newInstance();
+        playerFragment.show(getSupportFragmentManager(), PLAYER_FRAGMENT_DIALOG_TAG);
+        Log.d("MainActivity", "Open PlayerFragment");
     }
 }

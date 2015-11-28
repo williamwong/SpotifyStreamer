@@ -1,11 +1,8 @@
 package org.williamwong.spotifystreamer.fragments;
 
 import android.app.Dialog;
-import android.media.AudioManager;
-import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,10 +15,8 @@ import android.widget.TextView;
 import com.squareup.picasso.Picasso;
 
 import org.williamwong.spotifystreamer.R;
-import org.williamwong.spotifystreamer.activities.MainActivity;
 import org.williamwong.spotifystreamer.models.TrackModel;
-
-import java.io.IOException;
+import org.williamwong.spotifystreamer.services.MusicService;
 
 /**
  * Fragment for displaying track info and playing preview track
@@ -31,86 +26,87 @@ public class PlayerFragment extends DialogFragment {
 
     private static final String TRACK_MODEL_KEY = "trackModel";
     private TrackModel mTrackModel;
+    private TextView mArtistNameTextView;
+    private TextView mAlbumNameTextView;
+    private TextView mTrackNameTextView;
+    private ImageView mAlbumImageView;
+    private ImageButton mPreviousButton;
+    private ImageButton mPlayPauseButton;
+    private ImageButton mNextButton;
+    private MusicService mMusicService;
 
     public PlayerFragment() {
     }
 
-    public static PlayerFragment newInstance(TrackModel trackModel) {
-        PlayerFragment playerFragment = new PlayerFragment();
-        Bundle args = new Bundle();
-        args.putParcelable(MainActivity.TRACK_MODEL_KEY, trackModel);
-        playerFragment.setArguments(args);
-        return playerFragment;
+    public static PlayerFragment newInstance() {
+        return new PlayerFragment();
     }
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        if (getArguments().containsKey(MainActivity.TRACK_MODEL_KEY)) {
-            mTrackModel = getArguments().getParcelable(MainActivity.TRACK_MODEL_KEY);
-        }
-    }
-
-    @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_player, container, false);
 
-        if (savedInstanceState != null) {
-            mTrackModel = savedInstanceState.getParcelable(TRACK_MODEL_KEY);
-        }
+        mArtistNameTextView = (TextView) view.findViewById(R.id.artistNameTextView);
+        mAlbumNameTextView = (TextView) view.findViewById(R.id.albumNameTextView);
+        mTrackNameTextView = (TextView) view.findViewById(R.id.trackNameTextView);
+        mAlbumImageView = (ImageView) view.findViewById(R.id.albumImageView);
+        mPreviousButton = (ImageButton) view.findViewById(R.id.previousButton);
+        mPlayPauseButton = (ImageButton) view.findViewById(R.id.playPauseButton);
+        mNextButton = (ImageButton) view.findViewById(R.id.nextButton);
 
-        TextView artistNameTextView = (TextView) view.findViewById(R.id.artistNameTextView);
-        TextView albumNameTextView = (TextView) view.findViewById(R.id.albumNameTextView);
-        TextView trackNameTextView = (TextView) view.findViewById(R.id.trackNameTextView);
-        ImageView albumImageView = (ImageView) view.findViewById(R.id.albumImageView);
-        ImageButton previousButton = (ImageButton) view.findViewById(R.id.previousButton);
-        ImageButton playPauseButton = (ImageButton) view.findViewById(R.id.playPauseButton);
-        ImageButton nextButton = (ImageButton) view.findViewById(R.id.nextButton);
-
-        if (mTrackModel != null) {
-            artistNameTextView.setText(mTrackModel.getArtistName());
-            albumNameTextView.setText(mTrackModel.getAlbumName());
-            trackNameTextView.setText(mTrackModel.getTrackName());
-
-            Picasso.with(getActivity())
-                    .load(mTrackModel.getImageUrl())
-                    .fit().centerCrop()
-                    .into(albumImageView);
-
-            playPauseButton.setOnClickListener(new View.OnClickListener() {
+        mMusicService = MusicService.getMusicService();
+        if (mMusicService != null) {
+            mPlayPauseButton.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public void onClick(View view) {
-                    playMusic(mTrackModel.getPreviewUrl());
+                public void onClick(View v) {
+                    if (mMusicService.isPlaying()) {
+                        mMusicService.pauseSong();
+                    } else {
+                        mMusicService.playSong();
+                    }
+                }
+            });
+            mPreviousButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mMusicService.previousSong();
+                    updateView();
+                }
+            });
+            mNextButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mMusicService.nextSong();
+                    updateView();
                 }
             });
         }
 
+        updateView();
+
         return view;
     }
 
-    private void playMusic(String previewUrl) {
-        MediaPlayer mediaPlayer = new MediaPlayer();
-        mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-        try {
-            mediaPlayer.setDataSource(previewUrl);
-        } catch (IOException e) {
-            e.printStackTrace();
+    private void updateView() {
+        if (mMusicService != null) {
+            mTrackModel = mMusicService.getCurrentlyPlayingTrackModel();
+            // TODO toggle play pause button state
+//            if (mMusicService.isPlaying()) {
+//                mPlayPauseButton.setImageResource(android.R.drawable.ic_media_pause);
+//            } else {
+//                mPlayPauseButton.setImageResource(android.R.drawable.ic_media_play);
+//            }
         }
-        mediaPlayer.setOnErrorListener(new MediaPlayer.OnErrorListener() {
-            @Override
-            public boolean onError(MediaPlayer mediaPlayer, int i, int i1) {
-                return false;
-            }
-        });
-        mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-            @Override
-            public void onPrepared(MediaPlayer mediaPlayer) {
-                mediaPlayer.start();
-            }
-        });
-        mediaPlayer.prepareAsync();
+        if (mTrackModel != null) {
+            mArtistNameTextView.setText(mTrackModel.getArtistName());
+            mAlbumNameTextView.setText(mTrackModel.getAlbumName());
+            mTrackNameTextView.setText(mTrackModel.getTrackName());
+
+            Picasso.with(getActivity())
+                    .load(mTrackModel.getImageUrl())
+                    .fit().centerCrop()
+                    .into(mAlbumImageView);
+        }
     }
 
     @Override
