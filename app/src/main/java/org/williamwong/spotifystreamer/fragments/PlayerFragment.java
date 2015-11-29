@@ -2,6 +2,7 @@ package org.williamwong.spotifystreamer.fragments;
 
 import android.app.Dialog;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
@@ -10,6 +11,7 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
@@ -17,6 +19,7 @@ import com.squareup.picasso.Picasso;
 import org.williamwong.spotifystreamer.R;
 import org.williamwong.spotifystreamer.models.TrackModel;
 import org.williamwong.spotifystreamer.services.MusicService;
+import org.williamwong.spotifystreamer.utilities.TimerUtilities;
 
 /**
  * Fragment for displaying track info and playing preview track
@@ -29,11 +32,17 @@ public class PlayerFragment extends DialogFragment {
     private TextView mArtistNameTextView;
     private TextView mAlbumNameTextView;
     private TextView mTrackNameTextView;
+    private TextView mTimeCurrentTextView;
+    private TextView mTimeEndTextView;
     private ImageView mAlbumImageView;
     private ImageButton mPreviousButton;
     private ImageButton mPlayPauseButton;
     private ImageButton mNextButton;
     private MusicService mMusicService;
+
+    private SeekBar mSeekBar;
+    private Handler mHandler = new Handler();
+    private Runnable mUpdateSeekBar;
 
     public PlayerFragment() {
     }
@@ -49,10 +58,13 @@ public class PlayerFragment extends DialogFragment {
         mArtistNameTextView = (TextView) view.findViewById(R.id.artistNameTextView);
         mAlbumNameTextView = (TextView) view.findViewById(R.id.albumNameTextView);
         mTrackNameTextView = (TextView) view.findViewById(R.id.trackNameTextView);
+        mTimeCurrentTextView = (TextView) view.findViewById(R.id.timeCurrentTextView);
+        mTimeEndTextView = (TextView) view.findViewById(R.id.timeEndTextView);
         mAlbumImageView = (ImageView) view.findViewById(R.id.albumImageView);
         mPreviousButton = (ImageButton) view.findViewById(R.id.previousButton);
         mPlayPauseButton = (ImageButton) view.findViewById(R.id.playPauseButton);
         mNextButton = (ImageButton) view.findViewById(R.id.nextButton);
+        mSeekBar = (SeekBar) view.findViewById(R.id.previewSeekBar);
 
         mMusicService = MusicService.getMusicService();
         if (mMusicService != null) {
@@ -81,8 +93,26 @@ public class PlayerFragment extends DialogFragment {
                     updateView();
                 }
             });
+            mUpdateSeekBar = new Runnable() {
+                @Override
+                public void run() {
+                    if (mMusicService.isPlayingOrPreparing()) {
+                        long currentDuration = mMusicService.getCurrentPosition();
+                        long totalDuration = mMusicService.getDuration();
+
+                        mTimeCurrentTextView.setText(TimerUtilities.milliSecondsToTimer(currentDuration));
+                        mTimeEndTextView.setText(TimerUtilities.milliSecondsToTimer(totalDuration));
+
+                        int progress = TimerUtilities.getProgressPercentage(currentDuration, totalDuration);
+                        mSeekBar.setProgress(progress);
+                    }
+
+                    mHandler.postDelayed(this, 100);
+                }
+            };
         }
 
+        mHandler.postDelayed(mUpdateSeekBar, 100);
         updateView();
 
         return view;

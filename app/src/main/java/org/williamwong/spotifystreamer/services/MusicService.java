@@ -147,6 +147,14 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         return false;
     }
 
+    public long getDuration() {
+        return mMediaPlayer.getDuration();
+    }
+
+    public long getCurrentPosition() {
+        return mMediaPlayer.getCurrentPosition();
+    }
+
     enum State {
         INITIALIZING,
         PREPARING,
