@@ -59,11 +59,12 @@ public class PlayerFragment extends DialogFragment {
             mPlayPauseButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (mMusicService.isPlaying()) {
+                    if (mMusicService.isPlayingOrPreparing()) {
                         mMusicService.pauseSong();
                     } else {
                         mMusicService.playSong();
                     }
+                    updateView();
                 }
             });
             mPreviousButton.setOnClickListener(new View.OnClickListener() {
@@ -90,12 +91,11 @@ public class PlayerFragment extends DialogFragment {
     private void updateView() {
         if (mMusicService != null) {
             mTrackModel = mMusicService.getCurrentlyPlayingTrackModel();
-            // TODO toggle play pause button state
-//            if (mMusicService.isPlaying()) {
-//                mPlayPauseButton.setImageResource(android.R.drawable.ic_media_pause);
-//            } else {
-//                mPlayPauseButton.setImageResource(android.R.drawable.ic_media_play);
-//            }
+            if (mMusicService.isPlayingOrPreparing()) {
+                mPlayPauseButton.setImageResource(android.R.drawable.ic_media_pause);
+            } else {
+                mPlayPauseButton.setImageResource(android.R.drawable.ic_media_play);
+            }
         }
         if (mTrackModel != null) {
             mArtistNameTextView.setText(mTrackModel.getArtistName());

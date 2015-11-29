@@ -16,7 +16,6 @@ public class MainActivity extends AppCompatActivity implements ArtistFragment.Ca
 
     public static final String SPOTIFY_ID_KEY = "spotifyId";
     public static final String ARTIST_NAME_KEY = "artistName";
-    public static final String TRACK_MODEL_KEY = "trackModel";
     public static final String TRACK_FRAGMENT_TAG = "trackFragment";
     public static final String PLAYER_FRAGMENT_DIALOG_TAG = "playerFragment";
 
@@ -61,6 +60,12 @@ public class MainActivity extends AppCompatActivity implements ArtistFragment.Ca
         }
     }
 
+
+    /**
+     * Handles track selected and starts new PlayerFragment activity.
+     * This is a callback from the {@link org.williamwong.spotifystreamer.fragments.TrackFragment.Callbacks}
+     * class.
+     */
     @Override
     public void onTrackSelected() {
         // Only runs in two pane mode, since MainActivity will only host the

@@ -6,7 +6,6 @@ import android.support.v7.app.AppCompatActivity;
 
 import org.williamwong.spotifystreamer.R;
 import org.williamwong.spotifystreamer.fragments.PlayerFragment;
-import org.williamwong.spotifystreamer.models.TrackModel;
 
 public class PlayerActivity extends AppCompatActivity {
 

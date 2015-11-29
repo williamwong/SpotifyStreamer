@@ -24,18 +24,18 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     public MusicService() {
     }
 
-    @Override
-    public void onCreate() {
-        super.onCreate();
-        sMusicService = this;
-    }
-
     public static MusicService getMusicService() {
         if (sMusicService != null) {
             return sMusicService;
         } else {
             return null;
         }
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        sMusicService = this;
     }
 
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -71,8 +71,10 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     }
 
     public void pauseSong() {
-        mMediaPlayer.pause();
-        mState = State.PAUSED;
+        if (mState == State.PLAYING) {
+            mMediaPlayer.pause();
+            mState = State.PAUSED;
+        }
     }
 
     private void stopSong() {
@@ -105,8 +107,8 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         }
     }
 
-    public boolean isPlaying() {
-        return mMediaPlayer != null && mMediaPlayer.isPlaying();
+    public boolean isPlayingOrPreparing() {
+        return mState == State.PLAYING || mState == State.PREPARING;
     }
 
     public void setTrackModels(List<TrackModel> trackModels) {
