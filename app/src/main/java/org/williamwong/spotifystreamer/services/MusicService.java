@@ -155,6 +155,10 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         return mMediaPlayer.getCurrentPosition();
     }
 
+    public void seekTo(int currentPosition) {
+        mMediaPlayer.seekTo(currentPosition);
+    }
+
     enum State {
         INITIALIZING,
         PREPARING,

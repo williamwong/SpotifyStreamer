@@ -93,6 +93,31 @@ public class PlayerFragment extends DialogFragment {
                     updateView();
                 }
             });
+            mSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                @Override
+                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+
+                }
+
+                @Override
+                public void onStartTrackingTouch(SeekBar seekBar) {
+                    // Remove message Handler from updating progress bar
+                    mHandler.removeCallbacks(mUpdateSeekBar);
+                }
+
+                @Override
+                public void onStopTrackingTouch(SeekBar seekBar) {
+                    mHandler.removeCallbacks(mUpdateSeekBar);
+                    int totalDuration = (int) mMusicService.getDuration();
+                    int currentPosition = TimerUtilities.progressToTimer(seekBar.getProgress(), totalDuration);
+
+                    // forward or backward to certain seconds
+                    mMusicService.seekTo(currentPosition);
+
+                    // update timer progress again
+                    updateSeekBar();
+                }
+            });
             mUpdateSeekBar = new Runnable() {
                 @Override
                 public void run() {
@@ -112,10 +137,14 @@ public class PlayerFragment extends DialogFragment {
             };
         }
 
-        mHandler.postDelayed(mUpdateSeekBar, 100);
+        updateSeekBar();
         updateView();
 
         return view;
+    }
+
+    private void updateSeekBar() {
+        mHandler.postDelayed(mUpdateSeekBar, 100);
     }
 
     private void updateView() {
