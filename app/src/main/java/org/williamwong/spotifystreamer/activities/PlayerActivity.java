@@ -21,7 +21,7 @@ public class PlayerActivity extends AppCompatActivity {
             mPlayerFragment = (PlayerFragment) getSupportFragmentManager()
                     .findFragmentByTag(MainActivity.PLAYER_FRAGMENT_DIALOG_TAG);
         } else if (mPlayerFragment == null) {
-            mPlayerFragment = PlayerFragment.newInstance();
+            mPlayerFragment = new PlayerFragment();
         }
 
         // Insert fragment into container

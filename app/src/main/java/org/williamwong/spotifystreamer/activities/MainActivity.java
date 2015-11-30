@@ -71,7 +71,7 @@ public class MainActivity extends AppCompatActivity implements ArtistFragment.Ca
         // Only runs in two pane mode, since MainActivity will only host the
         // TrackFragment if on a tablet.
 
-        PlayerFragment playerFragment = PlayerFragment.newInstance();
+        PlayerFragment playerFragment = new PlayerFragment();
         playerFragment.show(getSupportFragmentManager(), PLAYER_FRAGMENT_DIALOG_TAG);
         Log.d("MainActivity", "Open PlayerFragment");
     }
