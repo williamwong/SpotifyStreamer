@@ -13,8 +13,9 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="@dimen/list_item_padding"
         android:layout_marginRight="@dimen/list_item_padding"
+        android:contentDescription="@string/artist_thumbnail_description"
         android:minHeight="@dimen/thumbnail_height"
-        android:minWidth="@dimen/thumbnail_width" />
+        android:minWidth="@dimen/thumbnail_width"/>
 
     <TextView
         android:id="@+id/artistNameTextView"

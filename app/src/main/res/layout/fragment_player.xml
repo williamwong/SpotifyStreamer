@@ -3,10 +3,10 @@
         xmlns:tools="http://schemas.android.com/tools">
 
     <data>
-
         <variable
             name="vm"
-            type="org.williamwong.spotifystreamer.viewModels.PlayerViewModel"/>
+            type="org.williamwong.spotifystreamer.viewModels.PlayerViewModel"
+            />
     </data>
 
     <RelativeLayout
@@ -43,7 +43,8 @@
             android:layout_centerHorizontal="true"
             android:layout_gravity="center_horizontal"
             android:contentDescription="@string/description_album_art"
-            android:src="@{vm.albumImageUrl}"/>
+            android:src="@{vm.albumImageUrl}"
+            />
 
         <TextView
             android:id="@+id/trackNameTextView"
@@ -60,7 +61,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/trackNameTextView"
-            android:layout_centerHorizontal="true"/>
+            android:layout_centerHorizontal="true"
+            android:onStartTrackingTouch="@{vm.onStartTrackingTouch}"
+            android:onStopTrackingTouch="@{vm.onStopTrackingTouch}"
+            android:progress="@{vm.trackProgress}"/>
 
         <TextView
             android:id="@+id/timeCurrentTextView"
@@ -106,7 +110,8 @@
                 android:layout_weight="1"
                 android:contentDescription="@string/description_play_pause"
                 android:onClick="@{vm.onPlayPause}"
-                android:src="@android:drawable/ic_media_pause"/>
+                android:src="@{vm.isPlaying ? @android:drawable/ic_media_pause : @android:drawable/ic_media_play}"
+                tools:src="@android:drawable/ic_media_pause"/>
 
             <ImageButton
                 android:id="@+id/nextButton"

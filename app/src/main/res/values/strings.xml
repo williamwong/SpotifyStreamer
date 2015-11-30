@@ -18,4 +18,5 @@
     <string name="description_play_pause">Play/Pause</string>
     <string name="description_next">Next</string>
     <string name="description_album_art">Album art</string>
+    <string name="artist_thumbnail_description">Artist Thumbnail</string>
 </resources>
