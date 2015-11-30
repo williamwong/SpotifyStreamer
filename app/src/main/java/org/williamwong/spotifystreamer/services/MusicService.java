@@ -54,6 +54,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     public void playSong() {
         if (mState == State.PAUSED) {
             mMediaPlayer.start();
+            mState = State.PLAYING;
             return;
         }
 
