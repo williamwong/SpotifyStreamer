@@ -19,10 +19,8 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     private MediaPlayer mMediaPlayer = null;
     private List<TrackModel> mTrackModels;
     private int mCurrentTrack;
+    private long mDuration;
     private State mState = State.INITIALIZING;
-
-    public MusicService() {
-    }
 
     public static MusicService getMusicService() {
         if (sMusicService != null) {
@@ -100,6 +98,10 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         }
     }
 
+    public void seekTo(int currentPosition) {
+        mMediaPlayer.seekTo(currentPosition);
+    }
+
     public TrackModel getCurrentlyPlayingTrackModel() {
         if (mTrackModels != null) {
             return mTrackModels.get(mCurrentTrack);
@@ -108,16 +110,20 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         }
     }
 
-    public boolean isPlayingOrPreparing() {
-        return mState == State.PLAYING || mState == State.PREPARING;
-    }
-
     public void setTrackModels(List<TrackModel> trackModels) {
         mTrackModels = trackModels;
     }
 
     public void setCurrentTrack(int currentTrack) {
         mCurrentTrack = currentTrack;
+    }
+
+    public long getDuration() {
+        return mDuration;
+    }
+
+    public long getCurrentPosition() {
+        return mMediaPlayer.getCurrentPosition();
     }
 
     @Override
@@ -134,6 +140,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
 
     @Override
     public void onPrepared(MediaPlayer mediaPlayer) {
+        mDuration = mediaPlayer.getDuration();
         mediaPlayer.start();
         mState = State.PLAYING;
     }
@@ -146,18 +153,6 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     @Override
     public boolean onError(MediaPlayer mediaPlayer, int what, int extra) {
         return false;
-    }
-
-    public long getDuration() {
-        return mMediaPlayer.getDuration();
-    }
-
-    public long getCurrentPosition() {
-        return mMediaPlayer.getCurrentPosition();
-    }
-
-    public void seekTo(int currentPosition) {
-        mMediaPlayer.seekTo(currentPosition);
     }
 
     enum State {
