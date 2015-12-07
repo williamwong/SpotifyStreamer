@@ -1,7 +1,6 @@
 package org.williamwong.spotifystreamer.services;
 
 import android.app.Notification;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
@@ -21,6 +20,12 @@ import java.util.List;
 public class MusicService extends Service implements MediaPlayer.OnPreparedListener,
         MediaPlayer.OnErrorListener, MediaPlayer.OnBufferingUpdateListener {
 
+    public static final String ACTION_PLAY = "org.williamwong.spotifystreamer.action.PLAY_SONG";
+    public static final String ACTION_PAUSE = "org.williamwong.spotifystreamer.action.PAUSE_SONG";
+    public static final String ACTION_NEXT = "org.williamwong.spotifystreamer.action.NEXT_SONG";
+    public static final String ACTION_STOP = "org.williamwong.spotifystreamer.action.STOP_SONG";
+    public static final String ACTION_PREVIOUS = "org.williamwong.spotifystreamer.action.PREVIOUS_SONG";
+
     private static MusicService sMusicService;
     private final int NOTIFICATION_ID = 1;
     private MediaPlayer mMediaPlayer = null;
@@ -28,7 +33,6 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     private int mCurrentTrack;
     private long mDuration;
     private State mState = State.INITIALIZING;
-    private NotificationManager mNotificationManager;
     private Notification mNotification;
 
     public static MusicService getMusicService() {
@@ -43,11 +47,33 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     public void onCreate() {
         super.onCreate();
         sMusicService = this;
-        mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
     }
 
     public int onStartCommand(Intent intent, int flags, int startId) {
-        initMediaPlayer();
+        String action = intent.getAction();
+
+        if (action != null) {
+            switch (action) {
+                case ACTION_PLAY:
+                    playSong();
+                    break;
+                case ACTION_PAUSE:
+                    pauseSong();
+                    break;
+                case ACTION_NEXT:
+                    nextSong();
+                    break;
+                case ACTION_STOP:
+                    stopSong();
+                    break;
+                case ACTION_PREVIOUS:
+                    previousSong();
+                    break;
+            }
+        } else {
+            initMediaPlayer();
+        }
+
         return START_STICKY;
     }
 
@@ -63,6 +89,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         if (mState == State.PAUSED) {
             mMediaPlayer.start();
             mState = State.PLAYING;
+            setUpNotification();
             return;
         }
 
@@ -77,13 +104,14 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         }
         mMediaPlayer.prepareAsync();
         mState = State.PREPARING;
-        setUpAsForeground(getCurrentlyPlayingTrackModel().getTrackName());
+        setUpNotification();
     }
 
     public void pauseSong() {
         if (mState == State.PLAYING) {
             mMediaPlayer.pause();
             mState = State.PAUSED;
+            setUpNotification();
         }
     }
 
@@ -173,18 +201,35 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
      * actively aware of (such as playing music), and must appear to the user as a notification. That's why we create
      * the notification here.
      */
-    void setUpAsForeground(String text) {
-        PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(),
-                0, new Intent(getApplicationContext(),
-                        PlayerActivity.class),
-                PendingIntent.FLAG_UPDATE_CURRENT);
+    void setUpNotification() {
+        PendingIntent openPlayerIntent = PendingIntent.getActivity(getApplicationContext(),
+                0, new Intent(getApplicationContext(), PlayerActivity.class), PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent previousIntent = PendingIntent.getService(getApplicationContext(),
+                0, new Intent(MusicService.ACTION_PREVIOUS), PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent pauseIntent = PendingIntent.getService(getApplicationContext(),
+                0, new Intent(MusicService.ACTION_PAUSE), PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent playIntent = PendingIntent.getService(getApplicationContext(),
+                0, new Intent(MusicService.ACTION_PLAY), PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent nextIntent = PendingIntent.getService(getApplicationContext(),
+                0, new Intent(MusicService.ACTION_NEXT), PendingIntent.FLAG_UPDATE_CURRENT);
+
+        String message = getCurrentlyPlayingTrackModel().getTrackName() + " - " + getCurrentlyPlayingTrackModel().getArtistName();
+
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(getApplicationContext())
-                .setTicker(text)
+                .setTicker(message)
                 .setOngoing(true)
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentTitle(getResources().getString(R.string.app_name))
-                .setContentText(text)
-                .setContentIntent(pendingIntent);
+                .setContentText(message)
+                .setContentIntent(openPlayerIntent);
+
+        notificationBuilder.addAction(android.R.drawable.ic_media_previous, "Previous", previousIntent);
+        if (mState == State.PREPARING || mState == State.PLAYING) {
+            notificationBuilder.addAction(android.R.drawable.ic_media_pause, "Pause", pauseIntent);
+        } else {
+            notificationBuilder.addAction(android.R.drawable.ic_media_play, "Play", playIntent);
+        }
+        notificationBuilder.addAction(android.R.drawable.ic_media_next, "Next", nextIntent);
 
         if (Build.VERSION.SDK_INT < 16) {
             mNotification = notificationBuilder.getNotification();
@@ -192,13 +237,6 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
             mNotification = notificationBuilder.build();
         }
         startForeground(NOTIFICATION_ID, mNotification);
-    }
-
-    /**
-     * Updates the notification.
-     */
-    void updateNotification(String text) {
-        mNotificationManager.notify(NOTIFICATION_ID, mNotification);
     }
 
     enum State {

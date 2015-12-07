@@ -44,6 +44,13 @@
             android:name=".services.MusicService"
             android:enabled="true"
             android:exported="false">
+            <intent-filter>
+                <action android:name="org.williamwong.spotifystreamer.action.PLAY_SONG"/>
+                <action android:name="org.williamwong.spotifystreamer.action.PAUSE_SONG"/>
+                <action android:name="org.williamwong.spotifystreamer.action.NEXT_SONG"/>
+                <action android:name="org.williamwong.spotifystreamer.action.PREVIOUS_SONG"/>
+                <action android:name="org.williamwong.spotifystreamer.action.STOP_SONG"/>
+            </intent-filter>
         </service>
     </application>
 
