@@ -17,6 +17,8 @@ import org.williamwong.spotifystreamer.models.TrackModel;
 import java.io.IOException;
 import java.util.List;
 
+// TODO Add callbacks to notify view models about song changes
+
 public class MusicService extends Service implements MediaPlayer.OnPreparedListener,
         MediaPlayer.OnErrorListener, MediaPlayer.OnBufferingUpdateListener {
 
@@ -34,6 +36,12 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     private long mDuration;
     private State mState = State.INITIALIZING;
     private Notification mNotification;
+    private NotificationCompat.Builder mNotificationBuilder;
+    private PendingIntent mOpenPlayerIntent;
+    private PendingIntent mPreviousIntent;
+    private PendingIntent mPauseIntent;
+    private PendingIntent mPlayIntent;
+    private PendingIntent mNextIntent;
 
     public static MusicService getMusicService() {
         if (sMusicService != null) {
@@ -47,6 +55,27 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     public void onCreate() {
         super.onCreate();
         sMusicService = this;
+
+        mOpenPlayerIntent = PendingIntent.getActivity(getApplicationContext(),
+                0, new Intent(getApplicationContext(), PlayerActivity.class), PendingIntent.FLAG_UPDATE_CURRENT);
+        mPreviousIntent = PendingIntent.getService(getApplicationContext(),
+                0, new Intent(MusicService.ACTION_PREVIOUS), PendingIntent.FLAG_UPDATE_CURRENT);
+        mPauseIntent = PendingIntent.getService(getApplicationContext(),
+                0, new Intent(MusicService.ACTION_PAUSE), PendingIntent.FLAG_UPDATE_CURRENT);
+        mPlayIntent = PendingIntent.getService(getApplicationContext(),
+                0, new Intent(MusicService.ACTION_PLAY), PendingIntent.FLAG_UPDATE_CURRENT);
+        mNextIntent = PendingIntent.getService(getApplicationContext(),
+                0, new Intent(MusicService.ACTION_NEXT), PendingIntent.FLAG_UPDATE_CURRENT);
+
+        mNotificationBuilder = new NotificationCompat.Builder(getApplicationContext())
+                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                .setOngoing(true)
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setContentTitle(getResources().getString(R.string.app_name))
+                .setContentIntent(mOpenPlayerIntent)
+                .addAction(android.R.drawable.ic_media_previous, "Previous", mPreviousIntent)
+                .addAction(android.R.drawable.ic_media_pause, "Pause", mPauseIntent)
+                .addAction(android.R.drawable.ic_media_next, "Next", mNextIntent);
     }
 
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -202,39 +231,23 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
      * the notification here.
      */
     void setUpNotification() {
-        PendingIntent openPlayerIntent = PendingIntent.getActivity(getApplicationContext(),
-                0, new Intent(getApplicationContext(), PlayerActivity.class), PendingIntent.FLAG_UPDATE_CURRENT);
-        PendingIntent previousIntent = PendingIntent.getService(getApplicationContext(),
-                0, new Intent(MusicService.ACTION_PREVIOUS), PendingIntent.FLAG_UPDATE_CURRENT);
-        PendingIntent pauseIntent = PendingIntent.getService(getApplicationContext(),
-                0, new Intent(MusicService.ACTION_PAUSE), PendingIntent.FLAG_UPDATE_CURRENT);
-        PendingIntent playIntent = PendingIntent.getService(getApplicationContext(),
-                0, new Intent(MusicService.ACTION_PLAY), PendingIntent.FLAG_UPDATE_CURRENT);
-        PendingIntent nextIntent = PendingIntent.getService(getApplicationContext(),
-                0, new Intent(MusicService.ACTION_NEXT), PendingIntent.FLAG_UPDATE_CURRENT);
 
         String message = getCurrentlyPlayingTrackModel().getTrackName() + " - " + getCurrentlyPlayingTrackModel().getArtistName();
 
-        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(getApplicationContext())
+        mNotificationBuilder
                 .setTicker(message)
-                .setOngoing(true)
-                .setSmallIcon(R.mipmap.ic_launcher)
-                .setContentTitle(getResources().getString(R.string.app_name))
-                .setContentText(message)
-                .setContentIntent(openPlayerIntent);
+                .setContentText(message);
 
-        notificationBuilder.addAction(android.R.drawable.ic_media_previous, "Previous", previousIntent);
         if (mState == State.PREPARING || mState == State.PLAYING) {
-            notificationBuilder.addAction(android.R.drawable.ic_media_pause, "Pause", pauseIntent);
+            mNotificationBuilder.mActions.set(1, new NotificationCompat.Action(android.R.drawable.ic_media_pause, "Pause", mPauseIntent));
         } else {
-            notificationBuilder.addAction(android.R.drawable.ic_media_play, "Play", playIntent);
+            mNotificationBuilder.mActions.set(1, new NotificationCompat.Action(android.R.drawable.ic_media_play, "Play", mPlayIntent));
         }
-        notificationBuilder.addAction(android.R.drawable.ic_media_next, "Next", nextIntent);
 
         if (Build.VERSION.SDK_INT < 16) {
-            mNotification = notificationBuilder.getNotification();
+            mNotification = mNotificationBuilder.getNotification();
         } else {
-            mNotification = notificationBuilder.build();
+            mNotification = mNotificationBuilder.build();
         }
         startForeground(NOTIFICATION_ID, mNotification);
     }
