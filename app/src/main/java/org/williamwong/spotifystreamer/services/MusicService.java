@@ -4,10 +4,12 @@ import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.IBinder;
+import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 
 import org.williamwong.spotifystreamer.R;
@@ -20,7 +22,8 @@ import java.util.List;
 // TODO Add callbacks to notify view models about song changes
 
 public class MusicService extends Service implements MediaPlayer.OnPreparedListener,
-        MediaPlayer.OnErrorListener, MediaPlayer.OnBufferingUpdateListener {
+        MediaPlayer.OnErrorListener, MediaPlayer.OnBufferingUpdateListener,
+        SharedPreferences.OnSharedPreferenceChangeListener {
 
     public static final String ACTION_PLAY = "org.williamwong.spotifystreamer.action.PLAY_SONG";
     public static final String ACTION_PAUSE = "org.williamwong.spotifystreamer.action.PAUSE_SONG";
@@ -34,6 +37,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     private List<TrackModel> mTrackModels;
     private int mCurrentTrack;
     private long mDuration;
+    private boolean mShowNotification;
     private State mState = State.INITIALIZING;
     private Notification mNotification;
     private NotificationCompat.Builder mNotificationBuilder;
@@ -42,6 +46,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     private PendingIntent mPauseIntent;
     private PendingIntent mPlayIntent;
     private PendingIntent mNextIntent;
+    private SharedPreferences mPreferences;
 
     public static MusicService getMusicService() {
         if (sMusicService != null) {
@@ -66,6 +71,10 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
                 0, new Intent(MusicService.ACTION_PLAY), PendingIntent.FLAG_UPDATE_CURRENT);
         mNextIntent = PendingIntent.getService(getApplicationContext(),
                 0, new Intent(MusicService.ACTION_NEXT), PendingIntent.FLAG_UPDATE_CURRENT);
+
+        mPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        mPreferences.registerOnSharedPreferenceChangeListener(this);
+        setShowNotification(mPreferences.getBoolean("show_notification", true));
 
         mNotificationBuilder = new NotificationCompat.Builder(getApplicationContext())
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
@@ -118,7 +127,9 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         if (mState == State.PAUSED) {
             mMediaPlayer.start();
             mState = State.PLAYING;
-            setUpNotification();
+            if (mShowNotification) {
+                setUpNotification();
+            }
             return;
         }
 
@@ -133,14 +144,18 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         }
         mMediaPlayer.prepareAsync();
         mState = State.PREPARING;
-        setUpNotification();
+        if (mShowNotification) {
+            setUpNotification();
+        }
     }
 
     public void pauseSong() {
         if (mState == State.PLAYING) {
             mMediaPlayer.pause();
             mState = State.PAUSED;
-            setUpNotification();
+            if (mShowNotification) {
+                setUpNotification();
+            }
         }
     }
 
@@ -186,6 +201,16 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         mCurrentTrack = currentTrack;
     }
 
+    public void setShowNotification(boolean showNotification) {
+        mShowNotification = showNotification;
+        if (mShowNotification) {
+            if (mState != State.INITIALIZING)
+                setUpNotification();
+        } else {
+            stopForeground(true);
+        }
+    }
+
     public long getDuration() {
         return mDuration;
     }
@@ -202,6 +227,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     @Override
     public void onDestroy() {
         super.onDestroy();
+        mPreferences.unregisterOnSharedPreferenceChangeListener(this);
         if (mMediaPlayer != null) mMediaPlayer.release();
         mMediaPlayer = null;
         stopForeground(true);
@@ -250,6 +276,13 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
             mNotification = mNotificationBuilder.build();
         }
         startForeground(NOTIFICATION_ID, mNotification);
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        if (key.equals("show_notification")) {
+            setShowNotification(sharedPreferences.getBoolean(key, true));
+        }
     }
 
     enum State {

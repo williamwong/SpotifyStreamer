@@ -53,6 +53,8 @@ public class MainActivity extends AppCompatActivity implements ArtistFragment.Ca
         switch (item.getItemId()) {
             case R.id.action_settings:
                 // User chose the "Settings" item, show the app settings UI
+                Intent preferencesIntent = new Intent(this, PreferencesActivity.class);
+                startActivity(preferencesIntent);
                 return true;
 
             case R.id.action_now_playing:

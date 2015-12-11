@@ -1,9 +1,11 @@
 package org.williamwong.spotifystreamer.fragments;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -113,8 +115,11 @@ public class TrackFragment extends Fragment {
     private void searchTracks(String mSpotifyId) {
         mTrackProgressBar.setVisibility(View.VISIBLE);
 
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        String country = preferences.getString("country", "US");
+
         Map<String, Object> options = new HashMap<>();
-        options.put("country", "US");
+        options.put("country", country);
         mSpotify.getArtistTopTrack(mSpotifyId, options, new Callback<Tracks>() {
             Handler handler = new Handler(Looper.getMainLooper());
 

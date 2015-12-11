@@ -57,6 +57,8 @@ public class TrackActivity extends AppCompatActivity implements TrackFragment.Ca
         switch (item.getItemId()) {
             case R.id.action_settings:
                 // User chose the "Settings" item, show the app settings UI
+                Intent preferencesIntent = new Intent(this, PreferencesActivity.class);
+                startActivity(preferencesIntent);
                 return true;
 
             case R.id.action_now_playing:
