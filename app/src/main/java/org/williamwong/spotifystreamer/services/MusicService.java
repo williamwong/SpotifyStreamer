@@ -5,12 +5,16 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
+
+import com.squareup.picasso.Picasso;
 
 import org.williamwong.spotifystreamer.R;
 import org.williamwong.spotifystreamer.activities.PlayerActivity;
@@ -19,6 +23,7 @@ import org.williamwong.spotifystreamer.models.TrackModel;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 // TODO Add callbacks to notify view models about song changes
 
@@ -40,13 +45,14 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     private boolean mShowNotification;
     private List<OnTrackChangedListener> mOnTrackChangedListeners;
     private State mState = State.INITIALIZING;
-    private NotificationCompat.Builder mNotificationBuilder;
     private PendingIntent mOpenPlayerIntent;
     private PendingIntent mPreviousIntent;
     private PendingIntent mPauseIntent;
     private PendingIntent mPlayIntent;
     private PendingIntent mNextIntent;
     private SharedPreferences mPreferences;
+    private NotificationCompat.Builder mNotificationBuilder;
+    private Notification mNotification;
 
     public static MusicService getMusicService() {
         if (sMusicService != null) {
@@ -83,9 +89,9 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentTitle(getResources().getString(R.string.app_name))
                 .setContentIntent(mOpenPlayerIntent)
-                .addAction(android.R.drawable.ic_media_previous, "Previous", mPreviousIntent)
-                .addAction(android.R.drawable.ic_media_pause, "Pause", mPauseIntent)
-                .addAction(android.R.drawable.ic_media_next, "Next", mNextIntent);
+                .addAction(R.drawable.ic_skip_previous_black_48dp, "", mPreviousIntent)
+                .addAction(R.drawable.ic_pause_black_48dp, "", mPauseIntent)
+                .addAction(R.drawable.ic_skip_next_black_48dp, "", mNextIntent);
     }
 
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -130,7 +136,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
             mMediaPlayer.start();
             mState = State.PLAYING;
             if (mShowNotification) {
-                setUpNotification();
+                updateNotification();
             }
             return;
         }
@@ -147,7 +153,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         mMediaPlayer.prepareAsync();
         mState = State.PREPARING;
         if (mShowNotification) {
-            setUpNotification();
+            updateNotification();
         }
         notifyTrackChangedListeners(false);
     }
@@ -157,7 +163,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
             mMediaPlayer.pause();
             mState = State.PAUSED;
             if (mShowNotification) {
-                setUpNotification();
+                updateNotification();
             }
         }
     }
@@ -208,7 +214,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         mShowNotification = showNotification;
         if (mShowNotification) {
             if (mState != State.INITIALIZING)
-                setUpNotification();
+                updateNotification();
         } else {
             stopForeground(true);
         }
@@ -268,7 +274,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
      * actively aware of (such as playing music), and must appear to the user as a notification. That's why we create
      * the notification here.
      */
-    void setUpNotification() {
+    private void updateNotification() {
 
         String message = getCurrentlyPlayingTrackModel().getTrackName() + " - " + getCurrentlyPlayingTrackModel().getArtistName();
 
@@ -277,19 +283,54 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
                 .setContentText(message);
 
         if (mState == State.PREPARING || mState == State.PLAYING) {
-            mNotificationBuilder.mActions.set(1, new NotificationCompat.Action(android.R.drawable.ic_media_pause, "Pause", mPauseIntent));
+            mNotificationBuilder.mActions.set(1, new NotificationCompat.Action(R.drawable.ic_pause_black_48dp, "", mPauseIntent));
         } else {
-            mNotificationBuilder.mActions.set(1, new NotificationCompat.Action(android.R.drawable.ic_media_play, "Play", mPlayIntent));
+            mNotificationBuilder.mActions.set(1, new NotificationCompat.Action(R.drawable.ic_play_arrow_black_48dp, "", mPlayIntent));
         }
 
-        Notification notification;
-        if (Build.VERSION.SDK_INT < 16) {
-            notification = mNotificationBuilder.getNotification();
-        } else {
-            notification = mNotificationBuilder.build();
-        }
-        startForeground(NOTIFICATION_ID, notification);
+        updateNotificationAlbumArt();
+
+        displayNotification();
     }
+
+    private void updateNotificationAlbumArt() {
+        Bitmap albumArt = null;
+        final String imageUrl = getCurrentlyPlayingTrackModel().getImageUrl();
+        try {
+            albumArt = new AsyncTask<Void, Void, Bitmap>() {
+
+                @Override
+                protected Bitmap doInBackground(Void... params) {
+                    try {
+                        return Picasso.with(getApplicationContext())
+                                .load(imageUrl)
+                                .get();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    return null;
+                }
+            }.execute().get();
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
+        if (albumArt != null) {
+            mNotificationBuilder.setLargeIcon(albumArt);
+        }
+
+        displayNotification();
+    }
+
+
+    private void displayNotification() {
+        if (Build.VERSION.SDK_INT < 16) {
+            mNotification = mNotificationBuilder.getNotification();
+        } else {
+            mNotification = mNotificationBuilder.build();
+        }
+        startForeground(NOTIFICATION_ID, mNotification);
+    }
+
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {

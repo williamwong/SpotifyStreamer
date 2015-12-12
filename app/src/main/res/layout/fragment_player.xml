@@ -100,7 +100,7 @@
                 android:layout_weight="1"
                 android:contentDescription="@string/description_previous"
                 android:onClick="@{vm.onPrevious}"
-                android:src="@android:drawable/ic_media_previous"/>
+                android:src="@drawable/ic_skip_previous_black_48dp"/>
 
             <ImageButton
                 android:id="@+id/playPauseButton"
@@ -110,8 +110,8 @@
                 android:layout_weight="1"
                 android:contentDescription="@string/description_play_pause"
                 android:onClick="@{vm.onPlayPause}"
-                android:src="@{vm.isPlaying ? @android:drawable/ic_media_pause : @android:drawable/ic_media_play}"
-                tools:src="@android:drawable/ic_media_pause"/>
+                android:src="@{vm.isPlaying ? @drawable/ic_pause_black_48dp : @drawable/ic_play_arrow_black_48dp}"
+                tools:src="@drawable/ic_pause_black_48dp"/>
 
             <ImageButton
                 android:id="@+id/nextButton"
@@ -121,7 +121,7 @@
                 android:layout_weight="1"
                 android:contentDescription="@string/description_next"
                 android:onClick="@{vm.onNext}"
-                android:src="@android:drawable/ic_media_next"/>
+                android:src="@drawable/ic_skip_next_black_48dp"/>
         </LinearLayout>
 
     </RelativeLayout>
