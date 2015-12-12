@@ -23,7 +23,9 @@ import org.williamwong.spotifystreamer.viewModels.PlayerViewModel;
  * Fragment for displaying track info and playing preview track
  * Created by w.wong on 6/21/2015.
  */
-public class PlayerFragment extends DialogFragment {
+public class PlayerFragment extends DialogFragment implements MusicService.OnTrackChangedListener {
+
+    private PlayerViewModel mViewModel;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -31,8 +33,8 @@ public class PlayerFragment extends DialogFragment {
         setHasOptionsMenu(true);
 
         FragmentPlayerBinding binding = FragmentPlayerBinding.bind(view);
-        PlayerViewModel viewModel = new PlayerViewModel();
-        binding.setVm(viewModel);
+        mViewModel = new PlayerViewModel();
+        binding.setVm(mViewModel);
 
         return view;
     }
@@ -45,6 +47,11 @@ public class PlayerFragment extends DialogFragment {
             int dialogWidth = getResources().getDimensionPixelSize(R.dimen.dialog_width);
             int dialogHeight = getResources().getDimensionPixelSize(R.dimen.dialog_height);
             getDialog().getWindow().setLayout(dialogWidth, dialogHeight);
+        }
+
+        MusicService service = MusicService.getMusicService();
+        if (service != null) {
+            service.registerListener(this);
         }
     }
 
@@ -65,7 +72,10 @@ public class PlayerFragment extends DialogFragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_item_share:
-                TrackModel track = MusicService.getMusicService().getCurrentlyPlayingTrackModel();
+                MusicService service = MusicService.getMusicService();
+                if (service == null) return true;
+
+                TrackModel track = service.getCurrentlyPlayingTrackModel();
                 if (track != null) {
                     Intent shareIntent = new Intent();
                     shareIntent.setAction(Intent.ACTION_SEND);
@@ -78,5 +88,19 @@ public class PlayerFragment extends DialogFragment {
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        MusicService service = MusicService.getMusicService();
+        if (service != null) {
+            service.unregisterListener(this);
+        }
+    }
+
+    @Override
+    public void onTrackChanged(TrackModel track) {
+        mViewModel.setTrack(track);
     }
 }

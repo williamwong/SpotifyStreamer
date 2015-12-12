@@ -17,6 +17,7 @@ import org.williamwong.spotifystreamer.activities.PlayerActivity;
 import org.williamwong.spotifystreamer.models.TrackModel;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 // TODO Add callbacks to notify view models about song changes
@@ -30,16 +31,15 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     public static final String ACTION_NEXT = "org.williamwong.spotifystreamer.action.NEXT_SONG";
     public static final String ACTION_STOP = "org.williamwong.spotifystreamer.action.STOP_SONG";
     public static final String ACTION_PREVIOUS = "org.williamwong.spotifystreamer.action.PREVIOUS_SONG";
-
+    private static final int NOTIFICATION_ID = 1;
     private static MusicService sMusicService;
-    private final int NOTIFICATION_ID = 1;
     private MediaPlayer mMediaPlayer = null;
     private List<TrackModel> mTrackModels;
     private int mCurrentTrack;
     private long mDuration;
     private boolean mShowNotification;
+    private List<OnTrackChangedListener> mOnTrackChangedListeners;
     private State mState = State.INITIALIZING;
-    private Notification mNotification;
     private NotificationCompat.Builder mNotificationBuilder;
     private PendingIntent mOpenPlayerIntent;
     private PendingIntent mPreviousIntent;
@@ -72,6 +72,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         mNextIntent = PendingIntent.getService(getApplicationContext(),
                 0, new Intent(MusicService.ACTION_NEXT), PendingIntent.FLAG_UPDATE_CURRENT);
 
+        mOnTrackChangedListeners = new ArrayList<>();
         mPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         mPreferences.registerOnSharedPreferenceChangeListener(this);
         setShowNotification(mPreferences.getBoolean("show_notification", true));
@@ -147,6 +148,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         if (mShowNotification) {
             setUpNotification();
         }
+        notifyTrackChangedListeners();
     }
 
     public void pauseSong() {
@@ -270,12 +272,13 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
             mNotificationBuilder.mActions.set(1, new NotificationCompat.Action(android.R.drawable.ic_media_play, "Play", mPlayIntent));
         }
 
+        Notification notification;
         if (Build.VERSION.SDK_INT < 16) {
-            mNotification = mNotificationBuilder.getNotification();
+            notification = mNotificationBuilder.getNotification();
         } else {
-            mNotification = mNotificationBuilder.build();
+            notification = mNotificationBuilder.build();
         }
-        startForeground(NOTIFICATION_ID, mNotification);
+        startForeground(NOTIFICATION_ID, notification);
     }
 
     @Override
@@ -285,11 +288,29 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         }
     }
 
+    public void registerListener(OnTrackChangedListener listener) {
+        mOnTrackChangedListeners.add(listener);
+    }
+
+    public void unregisterListener(OnTrackChangedListener listener) {
+        mOnTrackChangedListeners.remove(listener);
+    }
+
+    private void notifyTrackChangedListeners() {
+        for (OnTrackChangedListener listener : mOnTrackChangedListeners) {
+            listener.onTrackChanged(getCurrentlyPlayingTrackModel());
+        }
+    }
+
     enum State {
         INITIALIZING,
         PREPARING,
         PLAYING,
         PAUSED,
         STOPPED
+    }
+
+    public interface OnTrackChangedListener {
+        void onTrackChanged(TrackModel track);
     }
 }
