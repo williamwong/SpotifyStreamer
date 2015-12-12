@@ -78,7 +78,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         mOnTrackChangedListeners = new ArrayList<>();
         mPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         mPreferences.registerOnSharedPreferenceChangeListener(this);
-        setShowNotification(mPreferences.getBoolean("show_notification", true));
+        toggleNotification(mPreferences.getBoolean("show_notification", true));
 
         mNotificationBuilder = new NotificationCompat.Builder(getApplicationContext())
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
@@ -119,6 +119,9 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         return START_STICKY;
     }
 
+    /**
+     * Set up MediaPlayer and attach listeners
+     */
     private void initMediaPlayer() {
         if (mMediaPlayer == null) mMediaPlayer = new MediaPlayer();
         mMediaPlayer.setOnPreparedListener(this);
@@ -207,7 +210,13 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         mCurrentTrack = currentTrack;
     }
 
-    public void setShowNotification(boolean showNotification) {
+    /**
+     * Sets whether to show notification, and by extension whether to start the service in the
+     * foreground.
+     *
+     * @param showNotification If true, start service in foreground with notification
+     */
+    public void toggleNotification(boolean showNotification) {
         mShowNotification = showNotification;
         if (mShowNotification) {
             if (mState != State.INITIALIZING)
@@ -267,9 +276,9 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     }
 
     /**
-     * Configures service as a foreground service. A foreground service is a service that's doing something the user is
-     * actively aware of (such as playing music), and must appear to the user as a notification. That's why we create
-     * the notification here.
+     * Configures service as a foreground service. A foreground service is a service that's doing
+     * something the user is actively aware of (such as playing music), and must appear to the user
+     * as a notification. That's why we create the notification here.
      */
     private void updateNotification() {
 
@@ -290,6 +299,10 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         displayNotification();
     }
 
+    /**
+     * Triggers a task to load the album art asynchronously. When the image is ready, update the
+     * existing notification with image.
+     */
     private void updateNotificationAlbumArt() {
         Bitmap albumArt = null;
         final String imageUrl = getCurrentlyPlayingTrackModel().getImageUrl();
@@ -318,6 +331,9 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         displayNotification();
     }
 
+    /**
+     * Prepares notification and starts service in the foreground
+     */
     private void displayNotification() {
         Notification notification;
         if (Build.VERSION.SDK_INT < 16) {
@@ -328,10 +344,16 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         startForeground(NOTIFICATION_ID, notification);
     }
 
+    /**
+     * If the Show Notification preference is changed, toggle the notification for the service
+     * and start or stop service in foreground as necessary
+     * @param sharedPreferences Default instance of SharedPreferences
+     * @param key The key of the changed preference
+     */
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         if (key.equals("show_notification")) {
-            setShowNotification(sharedPreferences.getBoolean(key, true));
+            toggleNotification(sharedPreferences.getBoolean(key, true));
         }
     }
 
