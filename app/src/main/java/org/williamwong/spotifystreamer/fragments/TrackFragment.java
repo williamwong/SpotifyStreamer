@@ -42,7 +42,7 @@ import retrofit.client.Response;
  */
 public class TrackFragment extends Fragment {
 
-    public static final String TRACK_MODELS_KEY = "trackModels";
+    private static final String TRACK_MODELS_KEY = "trackModels";
 
     private SpotifyService mSpotify = new SpotifyApi().getService();
     private ArrayList<TrackModel> mTrackModels;
@@ -50,9 +50,6 @@ public class TrackFragment extends Fragment {
     private String mSpotifyId;
     private ProgressBar mTrackProgressBar;
     private Callbacks mCallbacks;
-
-    public TrackFragment() {
-    }
 
     public static TrackFragment newInstance(String spotifyId) {
         TrackFragment trackFragment = new TrackFragment();

@@ -6,7 +6,7 @@ import android.content.Intent;
 import org.williamwong.spotifystreamer.services.MusicService;
 
 /**
- * This is a
+ * Launcher class that overrides application to start MusicService
  * Created by williamwong on 11/27/15.
  */
 public class SpotifyApplication extends Application {
