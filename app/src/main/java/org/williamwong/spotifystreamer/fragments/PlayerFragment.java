@@ -100,7 +100,10 @@ public class PlayerFragment extends DialogFragment implements MusicService.OnTra
     }
 
     @Override
-    public void onTrackChanged(TrackModel track) {
+    public void onTrackChanged(TrackModel track, int position, boolean isComplete) {
         mViewModel.setTrack(track);
+        if (isComplete) {
+            mViewModel.isPlaying.set(false);
+        }
     }
 }

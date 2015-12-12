@@ -24,7 +24,7 @@ import java.util.List;
 
 public class MusicService extends Service implements MediaPlayer.OnPreparedListener,
         MediaPlayer.OnErrorListener, MediaPlayer.OnBufferingUpdateListener,
-        SharedPreferences.OnSharedPreferenceChangeListener {
+        MediaPlayer.OnCompletionListener, SharedPreferences.OnSharedPreferenceChangeListener {
 
     public static final String ACTION_PLAY = "org.williamwong.spotifystreamer.action.PLAY_SONG";
     public static final String ACTION_PAUSE = "org.williamwong.spotifystreamer.action.PAUSE_SONG";
@@ -121,6 +121,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         mMediaPlayer.setOnPreparedListener(this);
         mMediaPlayer.setOnErrorListener(this);
         mMediaPlayer.setOnBufferingUpdateListener(this);
+        mMediaPlayer.setOnCompletionListener(this);
         mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
     }
 
@@ -148,7 +149,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         if (mShowNotification) {
             setUpNotification();
         }
-        notifyTrackChangedListeners();
+        notifyTrackChangedListeners(false);
     }
 
     public void pauseSong() {
@@ -253,6 +254,15 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         return false;
     }
 
+    @Override
+    public void onCompletion(MediaPlayer mp) {
+        if (mCurrentTrack < mTrackModels.size() - 1) {
+            nextSong();
+        } else {
+            notifyTrackChangedListeners(true);
+        }
+    }
+
     /**
      * Configures service as a foreground service. A foreground service is a service that's doing something the user is
      * actively aware of (such as playing music), and must appear to the user as a notification. That's why we create
@@ -296,9 +306,15 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         mOnTrackChangedListeners.remove(listener);
     }
 
-    private void notifyTrackChangedListeners() {
+    /**
+     * Notifies registered listeners about new currently playing track and whether the track list
+     * is finished
+     *
+     * @param isComplete Signals whether the track list is completed
+     */
+    private void notifyTrackChangedListeners(boolean isComplete) {
         for (OnTrackChangedListener listener : mOnTrackChangedListeners) {
-            listener.onTrackChanged(getCurrentlyPlayingTrackModel());
+            listener.onTrackChanged(getCurrentlyPlayingTrackModel(), mCurrentTrack, isComplete);
         }
     }
 
@@ -311,6 +327,6 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     }
 
     public interface OnTrackChangedListener {
-        void onTrackChanged(TrackModel track);
+        void onTrackChanged(TrackModel track, int position, boolean isComplete);
     }
 }
