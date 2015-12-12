@@ -1,12 +1,17 @@
 package org.williamwong.spotifystreamer.fragments;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -15,6 +20,7 @@ import org.williamwong.spotifystreamer.R;
 import org.williamwong.spotifystreamer.activities.MainActivity;
 import org.williamwong.spotifystreamer.adapters.TrackAdapter;
 import org.williamwong.spotifystreamer.models.TrackModel;
+import org.williamwong.spotifystreamer.services.MusicService;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,6 +29,7 @@ import java.util.Map;
 
 import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyService;
+import kaaes.spotify.webapi.android.models.ArtistSimple;
 import kaaes.spotify.webapi.android.models.Image;
 import kaaes.spotify.webapi.android.models.Track;
 import kaaes.spotify.webapi.android.models.Tracks;
@@ -35,17 +42,14 @@ import retrofit.client.Response;
  */
 public class TrackFragment extends Fragment {
 
-    public static final String TRACK_MODELS_KEY = "trackModels";
-    private static final int MIN_THUMBNAIL_WIDTH = 200;
+    private static final String TRACK_MODELS_KEY = "trackModels";
 
     private SpotifyService mSpotify = new SpotifyApi().getService();
     private ArrayList<TrackModel> mTrackModels;
     private TrackAdapter mTrackAdapter;
     private String mSpotifyId;
     private ProgressBar mTrackProgressBar;
-
-    public TrackFragment() {
-    }
+    private Callbacks mCallbacks;
 
     public static TrackFragment newInstance(String spotifyId) {
         TrackFragment trackFragment = new TrackFragment();
@@ -82,6 +86,20 @@ public class TrackFragment extends Fragment {
         ListView trackListView = (ListView) view.findViewById(R.id.tracksListView);
         mTrackAdapter = new TrackAdapter(getActivity(), mTrackModels);
         trackListView.setAdapter(mTrackAdapter);
+        trackListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+                MusicService service = MusicService.getMusicService();
+                if (service != null && mCallbacks != null) {
+                    service.setTrackModels(mTrackModels);
+                    service.setCurrentTrack(position);
+                    // Launch PlayerFragment and/or Activity
+                    mCallbacks.onTrackSelected();
+                    service.playSong();
+                }
+
+            }
+        });
 
         return view;
     }
@@ -94,8 +112,11 @@ public class TrackFragment extends Fragment {
     private void searchTracks(String mSpotifyId) {
         mTrackProgressBar.setVisibility(View.VISIBLE);
 
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        String country = preferences.getString("country", "US");
+
         Map<String, Object> options = new HashMap<>();
-        options.put("country", "US");
+        options.put("country", country);
         mSpotify.getArtistTopTrack(mSpotifyId, options, new Callback<Tracks>() {
             Handler handler = new Handler(Looper.getMainLooper());
 
@@ -138,6 +159,8 @@ public class TrackFragment extends Fragment {
                 TrackModel trackModel = new TrackModel();
                 trackModel.setTrackName(track.name);
                 trackModel.setAlbumName(track.album.name);
+                trackModel.setPreviewUrl(track.preview_url);
+                trackModel.setExternalUrl(track.external_urls.get("spotify"));
 
                 List<Image> images = track.album.images;
                 if (images != null && !images.isEmpty()) {
@@ -147,13 +170,21 @@ public class TrackFragment extends Fragment {
                         if (isLast) {
                             imageIndex = i;
                             break;
-                        } else if (images.get(i + 1).width < MIN_THUMBNAIL_WIDTH) {
+                        } else if (images.get(i + 1).width < getResources()
+                                .getInteger(R.integer.min_thumbnail_pixel_width)) {
                             imageIndex = i;
                             break;
                         }
                     }
                     trackModel.setImageUrl(images.get(imageIndex).url);
                 }
+
+                List<String> artistNames = new ArrayList<>();
+                for (ArtistSimple artist : track.artists) {
+                    artistNames.add(artist.name);
+                }
+                trackModel.setArtistName(TextUtils.join(", ", artistNames));
+
                 // TODO set placeholder image
                 mTrackModels.add(trackModel);
             }
@@ -171,5 +202,27 @@ public class TrackFragment extends Fragment {
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putParcelableArrayList(TRACK_MODELS_KEY, mTrackModels);
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+
+        if (!(context instanceof Callbacks)) {
+            throw new IllegalStateException("Activity must implement fragment's callbacks.");
+        }
+
+        mCallbacks = (Callbacks) context;
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+
+        mCallbacks = null;
+    }
+
+    public interface Callbacks {
+        void onTrackSelected();
     }
 }

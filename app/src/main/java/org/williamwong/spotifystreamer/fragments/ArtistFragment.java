@@ -1,6 +1,5 @@
 package org.williamwong.spotifystreamer.fragments;
 
-import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
@@ -42,17 +41,15 @@ import retrofit.client.Response;
  */
 public class ArtistFragment extends Fragment {
 
-    public static final int MIN_THUMBNAIL_WIDTH = 200;
-    public static final String ARTIST_MODELS_KEY = "artistsModels";
+    private static final int MIN_THUMBNAIL_WIDTH = 200;
+    private static final String ARTIST_MODELS_KEY = "artistsModels";
 
     private SpotifyService mSpotify = new SpotifyApi().getService();
     private ArrayList<ArtistModel> mArtistModels;
     private ArtistAdapter mArtistAdapter;
     private Callbacks mCallbacks;
     private ProgressBar mArtistProgressBar;
-
-    public ArtistFragment() {
-    }
+    private ListView mArtistsListView;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -67,10 +64,10 @@ public class ArtistFragment extends Fragment {
             mArtistModels = new ArrayList<>();
         }
 
-        ListView artistsListView = (ListView) view.findViewById(R.id.artistsListView);
+        mArtistsListView = (ListView) view.findViewById(R.id.artistsListView);
         mArtistAdapter = new ArtistAdapter(getActivity(), mArtistModels);
-        artistsListView.setAdapter(mArtistAdapter);
-        artistsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        mArtistsListView.setAdapter(mArtistAdapter);
+        mArtistsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 if (mCallbacks != null) {
@@ -188,6 +185,12 @@ public class ArtistFragment extends Fragment {
         mArtistAdapter.notifyDataSetChanged();
     }
 
+    public void setActivateOnItemClick(boolean activateOnItemClick) {
+        mArtistsListView.setChoiceMode(activateOnItemClick ?
+                ListView.CHOICE_MODE_SINGLE :
+                ListView.CHOICE_MODE_NONE);
+    }
+
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -195,14 +198,14 @@ public class ArtistFragment extends Fragment {
     }
 
     @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
+    public void onAttach(Context context) {
+        super.onAttach(context);
 
-        if (!(activity instanceof Callbacks)) {
+        if (!(context instanceof Callbacks)) {
             throw new IllegalStateException("Activity must implement fragment's callbacks.");
         }
 
-        mCallbacks = (Callbacks) activity;
+        mCallbacks = (Callbacks) context;
     }
 
     @Override

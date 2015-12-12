@@ -17,19 +17,23 @@ public class TrackModel implements Parcelable {
             return new TrackModel[size];
         }
     };
-    String trackName;
-    String albumName;
-    String imageUrl;
-    String previewUrl;
+    private String trackName;
+    private String artistName;
+    private String albumName;
+    private String imageUrl;
+    private String previewUrl;
+    private String externalUrl;
 
     public TrackModel() {
     }
 
     protected TrackModel(Parcel in) {
         this.trackName = in.readString();
+        this.artistName = in.readString();
         this.albumName = in.readString();
         this.imageUrl = in.readString();
         this.previewUrl = in.readString();
+        this.externalUrl = in.readString();
     }
 
     public String getTrackName() {
@@ -64,6 +68,22 @@ public class TrackModel implements Parcelable {
         this.previewUrl = previewUrl;
     }
 
+    public String getArtistName() {
+        return artistName;
+    }
+
+    public void setArtistName(String artistName) {
+        this.artistName = artistName;
+    }
+
+    public String getExternalUrl() {
+        return externalUrl;
+    }
+
+    public void setExternalUrl(String externalUrl) {
+        this.externalUrl = externalUrl;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -72,8 +92,10 @@ public class TrackModel implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(this.trackName);
+        dest.writeString(this.artistName);
         dest.writeString(this.albumName);
         dest.writeString(this.imageUrl);
         dest.writeString(this.previewUrl);
+        dest.writeString(this.externalUrl);
     }
 }

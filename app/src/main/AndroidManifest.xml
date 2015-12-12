@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="org.williamwong.spotifystreamer" >
+<manifest
+    package="org.williamwong.spotifystreamer"
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
+        android:name=".SpotifyApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -23,10 +25,38 @@
         <activity
             android:name=".activities.TrackActivity"
             android:label="@string/title_activity_track"
+            android:launchMode="singleTop"
             android:parentActivityName=".activities.MainActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="org.williamwong.spotifystreamer.activities.MainActivity" />
+        </activity>
+        <activity
+            android:name=".activities.PlayerActivity"
+            android:label="@string/title_now_playing"
+            android:parentActivityName=".activities.TrackActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="org.williamwong.spotifystreamer.activities.TrackActivity" />
+        </activity>
+
+        <service
+            android:name=".services.MusicService"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="org.williamwong.spotifystreamer.action.PLAY_SONG"/>
+                <action android:name="org.williamwong.spotifystreamer.action.PAUSE_SONG"/>
+                <action android:name="org.williamwong.spotifystreamer.action.NEXT_SONG"/>
+                <action android:name="org.williamwong.spotifystreamer.action.PREVIOUS_SONG"/>
+                <action android:name="org.williamwong.spotifystreamer.action.STOP_SONG"/>
+            </intent-filter>
+        </service>
+
+        <activity
+            android:name=".activities.PreferencesActivity"
+            android:label="@string/title_activity_preferences"
+            android:theme="@style/AppTheme">
         </activity>
     </application>
 

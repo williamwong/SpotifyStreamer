@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="vm"
+            type="org.williamwong.spotifystreamer.viewmodels.PlayerViewModel"
+            />
+    </data>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="16dp">
+
+        <TextView
+            android:id="@+id/artistNameTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_gravity="center_horizontal"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:scrollHorizontally="true"
+            android:text="@{vm.artistName}"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            tools:text="Artist Name"/>
+
+        <TextView
+            android:id="@+id/albumNameTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/artistNameTextView"
+            android:layout_centerHorizontal="true"
+            android:layout_gravity="center_horizontal"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:scrollHorizontally="true"
+            android:text="@{vm.albumName}"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            tools:text="Album Name"/>
+
+        <LinearLayout
+            android:id="@+id/buttonsLinearLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:orientation="horizontal">
+
+            <ImageButton
+                android:id="@+id/previousButton"
+                android:layout_width="0dp"
+                android:layout_height="64dp"
+                android:layout_margin="8dp"
+                android:layout_weight="1"
+                android:contentDescription="@string/description_previous"
+                android:onClick="@{vm.onPrevious}"
+                android:src="@drawable/ic_skip_previous_black_48dp"/>
+
+            <ImageButton
+                android:id="@+id/playPauseButton"
+                android:layout_width="0dp"
+                android:layout_height="64dp"
+                android:layout_margin="8dp"
+                android:layout_weight="1"
+                android:contentDescription="@string/description_play_pause"
+                android:onClick="@{vm.onPlayPause}"
+                android:src="@{vm.isPlaying ? @drawable/ic_pause_black_48dp : @drawable/ic_play_arrow_black_48dp}"
+                tools:src="@drawable/ic_pause_black_48dp"/>
+
+            <ImageButton
+                android:id="@+id/nextButton"
+                android:layout_width="0dp"
+                android:layout_height="64dp"
+                android:layout_margin="8dp"
+                android:layout_weight="1"
+                android:contentDescription="@string/description_next"
+                android:onClick="@{vm.onNext}"
+                android:src="@drawable/ic_skip_next_black_48dp"/>
+        </LinearLayout>
+
+        <RelativeLayout
+            android:id="@+id/seekbarRelativeLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_above="@id/buttonsLinearLayout">
+
+            <TextView
+                android:id="@+id/trackNameTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:scrollHorizontally="true"
+                android:text="@{vm.trackName}"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                tools:text="Track Name"/>
+
+            <SeekBar
+                android:id="@+id/previewSeekBar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/trackNameTextView"
+                android:layout_centerHorizontal="true"
+                android:onStartTrackingTouch="@{vm.onStartTrackingTouch}"
+                android:onStopTrackingTouch="@{vm.onStopTrackingTouch}"
+                android:progress="@{vm.trackProgress}"/>
+
+            <TextView
+                android:id="@+id/timeCurrentTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_below="@+id/previewSeekBar"
+                android:text="@{vm.timeCurrent}"
+                tools:text="0:00"/>
+
+            <TextView
+                android:id="@+id/timeEndTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:layout_below="@+id/previewSeekBar"
+                android:text="@{vm.timeEnd}"
+                tools:text="0:30"/>
+        </RelativeLayout>
+
+        <ImageView
+            android:id="@+id/albumImageView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_above="@id/seekbarRelativeLayout"
+            android:layout_below="@id/albumNameTextView"
+            android:layout_centerHorizontal="true"
+            android:layout_gravity="center_horizontal"
+            android:contentDescription="@string/description_album_art"
+            android:scaleType="centerCrop"
+            android:src="@{vm.albumImageUrl}"/>
+
+    </RelativeLayout>
+
+</layout>
