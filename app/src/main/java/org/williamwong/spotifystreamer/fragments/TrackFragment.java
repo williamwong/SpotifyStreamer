@@ -1,9 +1,11 @@
 package org.williamwong.spotifystreamer.fragments;
 
-import android.app.Activity;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -18,6 +20,7 @@ import org.williamwong.spotifystreamer.R;
 import org.williamwong.spotifystreamer.activities.MainActivity;
 import org.williamwong.spotifystreamer.adapters.TrackAdapter;
 import org.williamwong.spotifystreamer.models.TrackModel;
+import org.williamwong.spotifystreamer.services.MusicService;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -39,7 +42,7 @@ import retrofit.client.Response;
  */
 public class TrackFragment extends Fragment {
 
-    public static final String TRACK_MODELS_KEY = "trackModels";
+    private static final String TRACK_MODELS_KEY = "trackModels";
 
     private SpotifyService mSpotify = new SpotifyApi().getService();
     private ArrayList<TrackModel> mTrackModels;
@@ -47,9 +50,6 @@ public class TrackFragment extends Fragment {
     private String mSpotifyId;
     private ProgressBar mTrackProgressBar;
     private Callbacks mCallbacks;
-
-    public TrackFragment() {
-    }
 
     public static TrackFragment newInstance(String spotifyId) {
         TrackFragment trackFragment = new TrackFragment();
@@ -89,10 +89,15 @@ public class TrackFragment extends Fragment {
         trackListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-                if (mCallbacks != null) {
-                    TrackModel trackModel = mTrackModels.get(position);
-                    mCallbacks.onTrackSelected(trackModel);
+                MusicService service = MusicService.getMusicService();
+                if (service != null && mCallbacks != null) {
+                    service.setTrackModels(mTrackModels);
+                    service.setCurrentTrack(position);
+                    // Launch PlayerFragment and/or Activity
+                    mCallbacks.onTrackSelected();
+                    service.playSong();
                 }
+
             }
         });
 
@@ -107,8 +112,11 @@ public class TrackFragment extends Fragment {
     private void searchTracks(String mSpotifyId) {
         mTrackProgressBar.setVisibility(View.VISIBLE);
 
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        String country = preferences.getString("country", "US");
+
         Map<String, Object> options = new HashMap<>();
-        options.put("country", "US");
+        options.put("country", country);
         mSpotify.getArtistTopTrack(mSpotifyId, options, new Callback<Tracks>() {
             Handler handler = new Handler(Looper.getMainLooper());
 
@@ -152,6 +160,7 @@ public class TrackFragment extends Fragment {
                 trackModel.setTrackName(track.name);
                 trackModel.setAlbumName(track.album.name);
                 trackModel.setPreviewUrl(track.preview_url);
+                trackModel.setExternalUrl(track.external_urls.get("spotify"));
 
                 List<Image> images = track.album.images;
                 if (images != null && !images.isEmpty()) {
@@ -196,14 +205,14 @@ public class TrackFragment extends Fragment {
     }
 
     @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
+    public void onAttach(Context context) {
+        super.onAttach(context);
 
-        if (!(activity instanceof Callbacks)) {
+        if (!(context instanceof Callbacks)) {
             throw new IllegalStateException("Activity must implement fragment's callbacks.");
         }
 
-        mCallbacks = (Callbacks) activity;
+        mCallbacks = (Callbacks) context;
     }
 
     @Override
@@ -214,6 +223,6 @@ public class TrackFragment extends Fragment {
     }
 
     public interface Callbacks {
-        void onTrackSelected(TrackModel trackModel);
+        void onTrackSelected();
     }
 }

@@ -1,6 +1,5 @@
 package org.williamwong.spotifystreamer.fragments;
 
-import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
@@ -42,8 +41,8 @@ import retrofit.client.Response;
  */
 public class ArtistFragment extends Fragment {
 
-    public static final int MIN_THUMBNAIL_WIDTH = 200;
-    public static final String ARTIST_MODELS_KEY = "artistsModels";
+    private static final int MIN_THUMBNAIL_WIDTH = 200;
+    private static final String ARTIST_MODELS_KEY = "artistsModels";
 
     private SpotifyService mSpotify = new SpotifyApi().getService();
     private ArrayList<ArtistModel> mArtistModels;
@@ -51,9 +50,6 @@ public class ArtistFragment extends Fragment {
     private Callbacks mCallbacks;
     private ProgressBar mArtistProgressBar;
     private ListView mArtistsListView;
-
-    public ArtistFragment() {
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -202,14 +198,14 @@ public class ArtistFragment extends Fragment {
     }
 
     @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
+    public void onAttach(Context context) {
+        super.onAttach(context);
 
-        if (!(activity instanceof Callbacks)) {
+        if (!(context instanceof Callbacks)) {
             throw new IllegalStateException("Activity must implement fragment's callbacks.");
         }
 
-        mCallbacks = (Callbacks) activity;
+        mCallbacks = (Callbacks) context;
     }
 
     @Override

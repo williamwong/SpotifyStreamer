@@ -18,4 +18,25 @@
     <string name="description_play_pause">Play/Pause</string>
     <string name="description_next">Next</string>
     <string name="description_album_art">Album art</string>
+    <string name="artist_thumbnail_description">Artist Thumbnail</string>
+    <string name="action_now_playing">Now Playing</string>
+    <string name="share">Share</string>
+
+    <!-- Preferences -->
+    <string name="title_activity_preferences">Preferences</string>
+    <string name="countries_title_list_preference">Country</string>
+    <string name="countries_dialog_title_list_preference">Countries</string>
+    <string-array name="countries_entry_values_list_preference">
+        <item>US</item>
+        <item>CA</item>
+        <item>GB</item>
+    </string-array>
+    <string-array name="countries_entries_list_preference">
+        <item>United States - US</item>
+        <item>Canada - CA</item>
+        <item>United Kingdom - GB</item>
+    </string-array>
+    <string name="show_notification_title_checkbox_preference">Show Now Playing notification</string>
+    <string name="show_notification_summary_checkbox_preference">If unchecked, the system is more likely to stop music playback to conserve resources.</string>
+
 </resources>
