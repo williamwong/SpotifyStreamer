@@ -1,4 +1,4 @@
-package org.williamwong.spotifystreamer.viewModels;
+package org.williamwong.spotifystreamer.viewmodels;
 
 import android.databinding.BindingAdapter;
 import android.databinding.ObservableBoolean;

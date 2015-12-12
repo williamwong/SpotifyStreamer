@@ -17,7 +17,7 @@ import org.williamwong.spotifystreamer.R;
 import org.williamwong.spotifystreamer.databinding.FragmentPlayerBinding;
 import org.williamwong.spotifystreamer.models.TrackModel;
 import org.williamwong.spotifystreamer.services.MusicService;
-import org.williamwong.spotifystreamer.viewModels.PlayerViewModel;
+import org.williamwong.spotifystreamer.viewmodels.PlayerViewModel;
 
 /**
  * Fragment for displaying track info and playing preview track

@@ -25,8 +25,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-// TODO Add callbacks to notify view models about song changes
-
 public class MusicService extends Service implements MediaPlayer.OnPreparedListener,
         MediaPlayer.OnErrorListener, MediaPlayer.OnBufferingUpdateListener,
         MediaPlayer.OnCompletionListener, SharedPreferences.OnSharedPreferenceChangeListener {
@@ -52,7 +50,6 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     private PendingIntent mNextIntent;
     private SharedPreferences mPreferences;
     private NotificationCompat.Builder mNotificationBuilder;
-    private Notification mNotification;
 
     public static MusicService getMusicService() {
         if (sMusicService != null) {
@@ -321,16 +318,15 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         displayNotification();
     }
 
-
     private void displayNotification() {
+        Notification notification;
         if (Build.VERSION.SDK_INT < 16) {
-            mNotification = mNotificationBuilder.getNotification();
+            notification = mNotificationBuilder.getNotification();
         } else {
-            mNotification = mNotificationBuilder.build();
+            notification = mNotificationBuilder.build();
         }
-        startForeground(NOTIFICATION_ID, mNotification);
+        startForeground(NOTIFICATION_ID, notification);
     }
-
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {

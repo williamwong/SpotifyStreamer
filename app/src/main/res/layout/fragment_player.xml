@@ -5,7 +5,7 @@
     <data>
         <variable
             name="vm"
-            type="org.williamwong.spotifystreamer.viewModels.PlayerViewModel"
+            type="org.williamwong.spotifystreamer.viewmodels.PlayerViewModel"
             />
     </data>
 
@@ -20,8 +20,11 @@
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
             android:layout_gravity="center_horizontal"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:scrollHorizontally="true"
             android:text="@{vm.artistName}"
-            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textAppearance="?android:attr/textAppearanceLarge"
             tools:text="Artist Name"/>
 
         <TextView
@@ -31,62 +34,15 @@
             android:layout_below="@id/artistNameTextView"
             android:layout_centerHorizontal="true"
             android:layout_gravity="center_horizontal"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:scrollHorizontally="true"
             android:text="@{vm.albumName}"
             android:textAppearance="?android:attr/textAppearanceMedium"
             tools:text="Album Name"/>
 
-        <ImageView
-            android:id="@+id/albumImageView"
-            android:layout_width="300dp"
-            android:layout_height="300dp"
-            android:layout_below="@id/albumNameTextView"
-            android:layout_centerHorizontal="true"
-            android:layout_gravity="center_horizontal"
-            android:contentDescription="@string/description_album_art"
-            android:src="@{vm.albumImageUrl}"
-            />
-
-        <TextView
-            android:id="@+id/trackNameTextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/albumImageView"
-            android:layout_centerHorizontal="true"
-            android:text="@{vm.trackName}"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            tools:text="Track Name"/>
-
-        <SeekBar
-            android:id="@+id/previewSeekBar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/trackNameTextView"
-            android:layout_centerHorizontal="true"
-            android:onStartTrackingTouch="@{vm.onStartTrackingTouch}"
-            android:onStopTrackingTouch="@{vm.onStopTrackingTouch}"
-            android:progress="@{vm.trackProgress}"/>
-
-        <TextView
-            android:id="@+id/timeCurrentTextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:layout_below="@+id/previewSeekBar"
-            android:text="@{vm.timeCurrent}"
-            tools:text="0:00"/>
-
-        <TextView
-            android:id="@+id/timeEndTextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
-            android:layout_below="@+id/previewSeekBar"
-            android:text="@{vm.timeEnd}"
-            tools:text="0:30"/>
-
         <LinearLayout
+            android:id="@+id/buttonsLinearLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
@@ -123,6 +79,67 @@
                 android:onClick="@{vm.onNext}"
                 android:src="@drawable/ic_skip_next_black_48dp"/>
         </LinearLayout>
+
+        <RelativeLayout
+            android:id="@+id/seekbarRelativeLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_above="@id/buttonsLinearLayout">
+
+            <TextView
+                android:id="@+id/trackNameTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:scrollHorizontally="true"
+                android:text="@{vm.trackName}"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                tools:text="Track Name"/>
+
+            <SeekBar
+                android:id="@+id/previewSeekBar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/trackNameTextView"
+                android:layout_centerHorizontal="true"
+                android:onStartTrackingTouch="@{vm.onStartTrackingTouch}"
+                android:onStopTrackingTouch="@{vm.onStopTrackingTouch}"
+                android:progress="@{vm.trackProgress}"/>
+
+            <TextView
+                android:id="@+id/timeCurrentTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_below="@+id/previewSeekBar"
+                android:text="@{vm.timeCurrent}"
+                tools:text="0:00"/>
+
+            <TextView
+                android:id="@+id/timeEndTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:layout_below="@+id/previewSeekBar"
+                android:text="@{vm.timeEnd}"
+                tools:text="0:30"/>
+        </RelativeLayout>
+
+        <ImageView
+            android:id="@+id/albumImageView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_above="@id/seekbarRelativeLayout"
+            android:layout_below="@id/albumNameTextView"
+            android:layout_centerHorizontal="true"
+            android:layout_gravity="center_horizontal"
+            android:contentDescription="@string/description_album_art"
+            android:scaleType="centerCrop"
+            android:src="@{vm.albumImageUrl}"/>
 
     </RelativeLayout>
 
