@@ -22,6 +22,7 @@ public class TrackModel implements Parcelable {
     private String albumName;
     private String imageUrl;
     private String previewUrl;
+    private String externalUrl;
 
     public TrackModel() {
     }
@@ -32,6 +33,7 @@ public class TrackModel implements Parcelable {
         this.albumName = in.readString();
         this.imageUrl = in.readString();
         this.previewUrl = in.readString();
+        this.externalUrl = in.readString();
     }
 
     public String getTrackName() {
@@ -74,6 +76,14 @@ public class TrackModel implements Parcelable {
         this.artistName = artistName;
     }
 
+    public String getExternalUrl() {
+        return externalUrl;
+    }
+
+    public void setExternalUrl(String externalUrl) {
+        this.externalUrl = externalUrl;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -86,5 +96,6 @@ public class TrackModel implements Parcelable {
         dest.writeString(this.albumName);
         dest.writeString(this.imageUrl);
         dest.writeString(this.previewUrl);
+        dest.writeString(this.externalUrl);
     }
 }

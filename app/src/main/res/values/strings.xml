@@ -20,6 +20,7 @@
     <string name="description_album_art">Album art</string>
     <string name="artist_thumbnail_description">Artist Thumbnail</string>
     <string name="action_now_playing">Now Playing</string>
+    <string name="share">Share</string>
 
     <!-- Preferences -->
     <string name="title_activity_preferences">Preferences</string>

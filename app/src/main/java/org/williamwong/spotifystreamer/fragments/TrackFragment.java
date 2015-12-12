@@ -160,6 +160,7 @@ public class TrackFragment extends Fragment {
                 trackModel.setTrackName(track.name);
                 trackModel.setAlbumName(track.album.name);
                 trackModel.setPreviewUrl(track.preview_url);
+                trackModel.setExternalUrl(track.external_urls.get("spotify"));
 
                 List<Image> images = track.album.images;
                 if (images != null && !images.isEmpty()) {
