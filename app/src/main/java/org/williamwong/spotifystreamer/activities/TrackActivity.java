@@ -7,9 +7,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import org.williamwong.spotifystreamer.R;
 import org.williamwong.spotifystreamer.fragments.TrackFragment;
+import org.williamwong.spotifystreamer.services.MusicService;
 
 public class TrackActivity extends AppCompatActivity implements TrackFragment.Callbacks {
 
@@ -62,11 +64,13 @@ public class TrackActivity extends AppCompatActivity implements TrackFragment.Ca
                 return true;
 
             case R.id.action_now_playing:
-                // User chose the "Now Playing" action, show the PlayerActivity
-                // and/or PlayerFragment dialog
-
-                Intent playerIntent = new Intent(this, PlayerActivity.class);
-                startActivity(playerIntent);
+                if (MusicService.getMusicService().getCurrentlyPlayingTrackModel() != null) {
+                    // User chose the "Now Playing" action, show the PlayerActivity
+                    Intent playerIntent = new Intent(this, PlayerActivity.class);
+                    startActivity(playerIntent);
+                } else {
+                    Toast.makeText(this, R.string.error_no_current_track, Toast.LENGTH_SHORT).show();
+                }
 
                 return true;
 

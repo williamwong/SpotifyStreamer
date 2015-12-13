@@ -8,11 +8,13 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.FrameLayout;
+import android.widget.Toast;
 
 import org.williamwong.spotifystreamer.R;
 import org.williamwong.spotifystreamer.fragments.ArtistFragment;
 import org.williamwong.spotifystreamer.fragments.PlayerFragment;
 import org.williamwong.spotifystreamer.fragments.TrackFragment;
+import org.williamwong.spotifystreamer.services.MusicService;
 
 public class MainActivity extends AppCompatActivity implements ArtistFragment.Callbacks, TrackFragment.Callbacks {
 
@@ -58,13 +60,17 @@ public class MainActivity extends AppCompatActivity implements ArtistFragment.Ca
                 return true;
 
             case R.id.action_now_playing:
-                // User chose the "Now Playing" action, show the PlayerActivity
-                // and/or PlayerFragment dialog
-                if (mIsTwoPane) {
-                    showPlayerDialog();
+                if (MusicService.getMusicService().getCurrentlyPlayingTrackModel() != null) {
+                    // User chose the "Now Playing" action, show the PlayerActivity
+                    // and/or PlayerFragment dialog
+                    if (mIsTwoPane) {
+                        showPlayerDialog();
+                    } else {
+                        Intent playerIntent = new Intent(this, PlayerActivity.class);
+                        startActivity(playerIntent);
+                    }
                 } else {
-                    Intent playerIntent = new Intent(this, PlayerActivity.class);
-                    startActivity(playerIntent);
+                    Toast.makeText(this, R.string.error_no_current_track, Toast.LENGTH_SHORT).show();
                 }
                 return true;
 

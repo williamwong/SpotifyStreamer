@@ -52,7 +52,10 @@ public class PlayerViewModel {
             }
         };
 
-        setTrack(mMusicService.getCurrentlyPlayingTrackModel());
+        TrackModel track = mMusicService.getCurrentlyPlayingTrackModel();
+        if (track != null) {
+            setTrack(track);
+        }
         isPlaying.set(true);
         updateSeekBar();
     }
