@@ -7,7 +7,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 
@@ -46,6 +45,10 @@ public class ArtistAdapter extends RecyclerView.Adapter<ArtistAdapter.ArtistView
         return mArtistModels.size();
     }
 
+    public interface OnArtistClickListener {
+        void onArtistSelected(String spotifyId, String artistName);
+    }
+
     public static class ArtistViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         ArtistModel mArtist;
         TextView mArtistNameTextView;
@@ -69,7 +72,10 @@ public class ArtistAdapter extends RecyclerView.Adapter<ArtistAdapter.ArtistView
 
         @Override
         public void onClick(View v) {
-            Toast.makeText(v.getContext(), mArtist.getName() + " selected", Toast.LENGTH_SHORT).show();
+            Context context = v.getContext();
+            if (context instanceof ArtistAdapter.OnArtistClickListener) {
+                ((ArtistAdapter.OnArtistClickListener) context).onArtistSelected(mArtist.getSpotifyId(), mArtist.getName());
+            }
         }
     }
 }

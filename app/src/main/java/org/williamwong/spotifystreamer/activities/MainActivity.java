@@ -11,12 +11,12 @@ import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import org.williamwong.spotifystreamer.R;
-import org.williamwong.spotifystreamer.fragments.ArtistFragment;
+import org.williamwong.spotifystreamer.adapters.ArtistAdapter;
 import org.williamwong.spotifystreamer.fragments.PlayerFragment;
 import org.williamwong.spotifystreamer.fragments.TrackFragment;
 import org.williamwong.spotifystreamer.services.MusicService;
 
-public class MainActivity extends AppCompatActivity implements ArtistFragment.Callbacks, TrackFragment.Callbacks {
+public class MainActivity extends AppCompatActivity implements ArtistAdapter.OnArtistClickListener, TrackFragment.Callbacks {
 
     public static final String SPOTIFY_ID_KEY = "spotifyId";
     public static final String ARTIST_NAME_KEY = "artistName";
@@ -78,7 +78,7 @@ public class MainActivity extends AppCompatActivity implements ArtistFragment.Ca
 
     /**
      * Handles artist selected and start new activity with track results.
-     * This is a callback from the {@link org.williamwong.spotifystreamer.fragments.ArtistFragment.Callbacks}
+     * This is a callback from the {@link org.williamwong.spotifystreamer.adapters.ArtistAdapter.OnArtistClickListener}
      * class.
      *
      * @param spotifyId  a Spotify id representing the artist
