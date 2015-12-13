@@ -1,15 +1,11 @@
 package org.williamwong.spotifystreamer.viewmodels;
 
-import android.databinding.BindingAdapter;
 import android.databinding.ObservableBoolean;
 import android.databinding.ObservableField;
 import android.databinding.ObservableInt;
 import android.os.Handler;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.SeekBar;
-
-import com.squareup.picasso.Picasso;
 
 import org.williamwong.spotifystreamer.models.TrackModel;
 import org.williamwong.spotifystreamer.services.MusicService;
@@ -58,11 +54,6 @@ public class PlayerViewModel {
         }
         isPlaying.set(true);
         updateSeekBar();
-    }
-
-    @BindingAdapter("android:src")
-    public static void setImageUrl(ImageView view, String source) {
-        Picasso.with(view.getContext()).load(source).into(view);
     }
 
     public void setTrack(TrackModel track) {

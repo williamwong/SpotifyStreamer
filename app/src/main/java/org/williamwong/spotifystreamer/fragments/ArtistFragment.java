@@ -15,13 +15,14 @@ import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import org.williamwong.spotifystreamer.R;
 import org.williamwong.spotifystreamer.adapters.ArtistAdapter;
+import org.williamwong.spotifystreamer.databinding.FragmentArtistBinding;
 import org.williamwong.spotifystreamer.models.ArtistModel;
+import org.williamwong.spotifystreamer.viewmodels.ArtistViewModel;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -48,12 +49,16 @@ public class ArtistFragment extends Fragment {
     private SpotifyService mSpotify = new SpotifyApi().getService();
     private ArrayList<ArtistModel> mArtistModels;
     private ArtistAdapter mArtistAdapter;
-    private ProgressBar mArtistProgressBar;
+    private ArtistViewModel mViewModel;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_artist, container, false);
+
+        FragmentArtistBinding binding = FragmentArtistBinding.bind(view);
+        mViewModel = new ArtistViewModel();
+        binding.setVm(mViewModel);
 
         // Retrieve mArtistModels if fragment is not new. Otherwise, initialize mArtistModels
         if (savedInstanceState != null &&
@@ -81,15 +86,13 @@ public class ArtistFragment extends Fragment {
                             .toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
 
                     // Execute search
-                    searchArtist(v.getText().toString());
+                    searchArtist(mViewModel.searchArtistQuery.get());
 
                     handled = true;
                 }
                 return handled;
             }
         });
-
-        mArtistProgressBar = (ProgressBar) view.findViewById(R.id.artistProgressBar);
 
         return view;
     }
@@ -100,7 +103,7 @@ public class ArtistFragment extends Fragment {
      * @param artist Name of artist for query
      */
     private void searchArtist(String artist) {
-        mArtistProgressBar.setVisibility(View.VISIBLE);
+        mViewModel.isLoading.set(true);
 
         Map<String, Object> options = new HashMap<>();
         options.put("limit", 10);
@@ -112,7 +115,7 @@ public class ArtistFragment extends Fragment {
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
-                        mArtistProgressBar.setVisibility(View.GONE);
+                        mViewModel.isLoading.set(false);
                         updateArtists(artistsPager);
                     }
                 });
@@ -123,7 +126,7 @@ public class ArtistFragment extends Fragment {
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
-                        mArtistProgressBar.setVisibility(View.GONE);
+                        mViewModel.isLoading.set(false);
                         Toast.makeText(getActivity(),
                                 getString(R.string.error_network),
                                 Toast.LENGTH_SHORT)
