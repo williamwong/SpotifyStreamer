@@ -1,12 +1,13 @@
 package org.williamwong.spotifystreamer.adapters;
 
 import android.content.Context;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 
@@ -19,42 +20,56 @@ import java.util.List;
  * List adapter for artist search results
  * Created by w.wong on 6/14/2015.
  */
-public class ArtistAdapter extends ArrayAdapter<ArtistModel> {
+public class ArtistAdapter extends RecyclerView.Adapter<ArtistAdapter.ArtistViewHolder> {
 
-    public ArtistAdapter(Context context, List<ArtistModel> objects) {
-        super(context, 0, objects);
+    private final List<ArtistModel> mArtistModels;
+    private final Context mContext;
+
+    public ArtistAdapter(Context context, List<ArtistModel> artistModels) {
+        mContext = context;
+        mArtistModels = artistModels;
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        ArtistModel artist = getItem(position);
-
-        ViewHolder viewHolder;
-        if (convertView == null) {
-            convertView = LayoutInflater.from(getContext())
-                    .inflate(R.layout.list_item_artist, parent, false);
-            viewHolder = new ViewHolder(convertView);
-            convertView.setTag(viewHolder);
-        } else {
-            viewHolder = (ViewHolder) convertView.getTag();
-        }
-
-        viewHolder.artistNameTextView.setText(artist.getName());
-        Picasso.with(getContext())
-                .load(artist.getImageUrl())
-                .fit().centerCrop()
-                .into(viewHolder.artistThumbnailImageView);
-
-        return convertView;
+    public ArtistViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_artist, parent, false);
+        return new ArtistViewHolder(v);
     }
 
-    private static class ViewHolder {
-        TextView artistNameTextView;
-        ImageView artistThumbnailImageView;
+    @Override
+    public void onBindViewHolder(ArtistViewHolder holder, int position) {
+        holder.bindArtist(mContext, mArtistModels.get(position));
+    }
 
-        public ViewHolder(View v) {
-            artistNameTextView = (TextView) v.findViewById(R.id.artistNameTextView);
-            artistThumbnailImageView = (ImageView) v.findViewById(R.id.artistThumbnailImageView);
+    @Override
+    public int getItemCount() {
+        return mArtistModels.size();
+    }
+
+    public static class ArtistViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+        ArtistModel mArtist;
+        TextView mArtistNameTextView;
+        ImageView mArtistThumbnailImageView;
+
+        public ArtistViewHolder(View v) {
+            super(v);
+            v.setOnClickListener(this);
+            mArtistNameTextView = (TextView) v.findViewById(R.id.artistNameTextView);
+            mArtistThumbnailImageView = (ImageView) v.findViewById(R.id.artistThumbnailImageView);
+        }
+
+        public void bindArtist(Context context, ArtistModel artist) {
+            mArtist = artist;
+            mArtistNameTextView.setText(mArtist.getName());
+            Picasso.with(context)
+                    .load(mArtist.getImageUrl())
+                    .fit().centerCrop()
+                    .into(mArtistThumbnailImageView);
+        }
+
+        @Override
+        public void onClick(View v) {
+            Toast.makeText(v.getContext(), mArtist.getName() + " selected", Toast.LENGTH_SHORT).show();
         }
     }
 }

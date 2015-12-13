@@ -36,11 +36,6 @@ public class MainActivity extends AppCompatActivity implements ArtistFragment.Ca
         FrameLayout tracksContainer = (FrameLayout) findViewById(R.id.tracksContainer);
         if (tracksContainer != null) {
             mIsTwoPane = true;
-            ArtistFragment artistFragment = (ArtistFragment) getSupportFragmentManager()
-                    .findFragmentById(R.id.artist_fragment);
-            if (artistFragment != null) {
-                artistFragment.setActivateOnItemClick(true);
-            }
         }
     }
 

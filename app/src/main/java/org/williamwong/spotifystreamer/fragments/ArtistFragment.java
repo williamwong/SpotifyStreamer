@@ -5,15 +5,16 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.AdapterView;
 import android.widget.EditText;
-import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -49,7 +50,7 @@ public class ArtistFragment extends Fragment {
     private ArtistAdapter mArtistAdapter;
     private Callbacks mCallbacks;
     private ProgressBar mArtistProgressBar;
-    private ListView mArtistsListView;
+    private RecyclerView mArtistsRecyclerView;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -64,18 +65,20 @@ public class ArtistFragment extends Fragment {
             mArtistModels = new ArrayList<>();
         }
 
-        mArtistsListView = (ListView) view.findViewById(R.id.artistsListView);
+        mArtistsRecyclerView = (RecyclerView) view.findViewById(R.id.artistsRecyclerView);
+        mArtistsRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        mArtistsRecyclerView.setItemAnimator(new DefaultItemAnimator());
         mArtistAdapter = new ArtistAdapter(getActivity(), mArtistModels);
-        mArtistsListView.setAdapter(mArtistAdapter);
-        mArtistsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                if (mCallbacks != null) {
-                    ArtistModel artist = mArtistModels.get(position);
-                    mCallbacks.onArtistSelected(artist.getSpotifyId(), artist.getName());
-                }
-            }
-        });
+        mArtistsRecyclerView.setAdapter(mArtistAdapter);
+//        mArtistsRecyclerView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//            @Override
+//            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+//                if (mCallbacks != null) {
+//                    ArtistModel artist = mArtistModels.get(position);
+//                    mCallbacks.onArtistSelected(artist.getSpotifyId(), artist.getName());
+//                }
+//            }
+//        });
 
         // TODO Add clear button
         EditText searchArtistEditText = (EditText) view.findViewById(R.id.searchArtistEditText);
@@ -183,12 +186,6 @@ public class ArtistFragment extends Fragment {
         }
 
         mArtistAdapter.notifyDataSetChanged();
-    }
-
-    public void setActivateOnItemClick(boolean activateOnItemClick) {
-        mArtistsListView.setChoiceMode(activateOnItemClick ?
-                ListView.CHOICE_MODE_SINGLE :
-                ListView.CHOICE_MODE_NONE);
     }
 
     @Override
