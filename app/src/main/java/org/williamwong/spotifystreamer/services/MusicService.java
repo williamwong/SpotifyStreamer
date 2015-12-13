@@ -55,7 +55,8 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
         if (sMusicService != null) {
             return sMusicService;
         } else {
-            return null;
+            sMusicService = new MusicService();
+            return sMusicService;
         }
     }
 
