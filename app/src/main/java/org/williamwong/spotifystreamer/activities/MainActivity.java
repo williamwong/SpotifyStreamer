@@ -11,12 +11,13 @@ import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import org.williamwong.spotifystreamer.R;
-import org.williamwong.spotifystreamer.fragments.ArtistFragment;
+import org.williamwong.spotifystreamer.adapters.ArtistAdapter;
+import org.williamwong.spotifystreamer.adapters.TrackAdapter;
 import org.williamwong.spotifystreamer.fragments.PlayerFragment;
 import org.williamwong.spotifystreamer.fragments.TrackFragment;
 import org.williamwong.spotifystreamer.services.MusicService;
 
-public class MainActivity extends AppCompatActivity implements ArtistFragment.Callbacks, TrackFragment.Callbacks {
+public class MainActivity extends AppCompatActivity implements ArtistAdapter.OnArtistClickListener, TrackAdapter.OnTrackClickListener {
 
     public static final String SPOTIFY_ID_KEY = "spotifyId";
     public static final String ARTIST_NAME_KEY = "artistName";
@@ -36,11 +37,6 @@ public class MainActivity extends AppCompatActivity implements ArtistFragment.Ca
         FrameLayout tracksContainer = (FrameLayout) findViewById(R.id.tracksContainer);
         if (tracksContainer != null) {
             mIsTwoPane = true;
-            ArtistFragment artistFragment = (ArtistFragment) getSupportFragmentManager()
-                    .findFragmentById(R.id.artist_fragment);
-            if (artistFragment != null) {
-                artistFragment.setActivateOnItemClick(true);
-            }
         }
     }
 
@@ -83,7 +79,7 @@ public class MainActivity extends AppCompatActivity implements ArtistFragment.Ca
 
     /**
      * Handles artist selected and start new activity with track results.
-     * This is a callback from the {@link org.williamwong.spotifystreamer.fragments.ArtistFragment.Callbacks}
+     * This is a callback from the {@link org.williamwong.spotifystreamer.adapters.ArtistAdapter.OnArtistClickListener}
      * class.
      *
      * @param spotifyId  a Spotify id representing the artist
@@ -106,7 +102,7 @@ public class MainActivity extends AppCompatActivity implements ArtistFragment.Ca
 
     /**
      * Handles track selected and starts new PlayerFragment activity.
-     * This is a callback from the {@link org.williamwong.spotifystreamer.fragments.TrackFragment.Callbacks}
+     * This is a callback from the {@link org.williamwong.spotifystreamer.adapters.TrackAdapter.OnTrackClickListener}
      * class.
      */
     @Override

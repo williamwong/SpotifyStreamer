@@ -5,15 +5,16 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.AdapterView;
 import android.widget.EditText;
-import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -47,9 +48,7 @@ public class ArtistFragment extends Fragment {
     private SpotifyService mSpotify = new SpotifyApi().getService();
     private ArrayList<ArtistModel> mArtistModels;
     private ArtistAdapter mArtistAdapter;
-    private Callbacks mCallbacks;
     private ProgressBar mArtistProgressBar;
-    private ListView mArtistsListView;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -64,18 +63,11 @@ public class ArtistFragment extends Fragment {
             mArtistModels = new ArrayList<>();
         }
 
-        mArtistsListView = (ListView) view.findViewById(R.id.artistsListView);
+        RecyclerView artistsRecyclerView = (RecyclerView) view.findViewById(R.id.artistsRecyclerView);
+        artistsRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        artistsRecyclerView.setItemAnimator(new DefaultItemAnimator());
         mArtistAdapter = new ArtistAdapter(getActivity(), mArtistModels);
-        mArtistsListView.setAdapter(mArtistAdapter);
-        mArtistsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                if (mCallbacks != null) {
-                    ArtistModel artist = mArtistModels.get(position);
-                    mCallbacks.onArtistSelected(artist.getSpotifyId(), artist.getName());
-                }
-            }
-        });
+        artistsRecyclerView.setAdapter(mArtistAdapter);
 
         // TODO Add clear button
         EditText searchArtistEditText = (EditText) view.findViewById(R.id.searchArtistEditText);
@@ -185,37 +177,9 @@ public class ArtistFragment extends Fragment {
         mArtistAdapter.notifyDataSetChanged();
     }
 
-    public void setActivateOnItemClick(boolean activateOnItemClick) {
-        mArtistsListView.setChoiceMode(activateOnItemClick ?
-                ListView.CHOICE_MODE_SINGLE :
-                ListView.CHOICE_MODE_NONE);
-    }
-
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putParcelableArrayList(ARTIST_MODELS_KEY, mArtistModels);
-    }
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-
-        if (!(context instanceof Callbacks)) {
-            throw new IllegalStateException("Activity must implement fragment's callbacks.");
-        }
-
-        mCallbacks = (Callbacks) context;
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-
-        mCallbacks = null;
-    }
-
-    public interface Callbacks {
-        void onArtistSelected(String spotifyId, String artistName);
     }
 }
