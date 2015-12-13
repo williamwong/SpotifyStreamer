@@ -10,10 +10,11 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import org.williamwong.spotifystreamer.R;
+import org.williamwong.spotifystreamer.adapters.TrackAdapter;
 import org.williamwong.spotifystreamer.fragments.TrackFragment;
 import org.williamwong.spotifystreamer.services.MusicService;
 
-public class TrackActivity extends AppCompatActivity implements TrackFragment.Callbacks {
+public class TrackActivity extends AppCompatActivity implements TrackAdapter.OnTrackClickListener {
 
     private TrackFragment mTrackFragment;
 

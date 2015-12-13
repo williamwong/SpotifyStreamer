@@ -8,8 +8,8 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="org.williamwong.spotifystreamer.fragments.TrackFragment">
 
-    <ListView
-        android:id="@+id/tracksListView"
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/tracksRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         tools:listitem="list_item_track" />
