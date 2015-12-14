@@ -1,7 +1,6 @@
 package org.williamwong.spotifystreamer.utilities;
 
 import android.databinding.BindingAdapter;
-import android.widget.EditText;
 import android.widget.ImageView;
 
 import com.squareup.picasso.Picasso;
@@ -20,12 +19,5 @@ public class BindingUtilities {
     @BindingAdapter("srcFitCenterCrop")
     public static void setImageUrlFitCenterCrop(ImageView view, String source) {
         Picasso.with(view.getContext()).load(source).fit().centerCrop().into(view);
-    }
-
-    @BindingAdapter("text")
-    public static void bindEditText(EditText editText, CharSequence value) {
-        if (!editText.getText().toString().equals(value.toString())) {
-            editText.setText(value);
-        }
     }
 }

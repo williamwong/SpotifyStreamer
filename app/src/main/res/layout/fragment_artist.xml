@@ -4,9 +4,7 @@
         xmlns:tools="http://schemas.android.com/tools">
 
     <data>
-
         <import type="android.view.View"/>
-
         <variable
             name="vm"
             type="org.williamwong.spotifystreamer.viewmodels.ArtistViewModel"
@@ -29,9 +27,10 @@
             android:layout_height="wrap_content"
             android:hint="@string/hint_search_artist"
             android:imeOptions="actionSearch"
+            android:onEditorAction="@{vm.onSearchAction}"
             android:singleLine="true"
-            app:addTextChangedListener="@{vm.searchArtistQueryWatcher}"
-            app:text="@{vm.searchArtistQuery}"/>
+            app:addTextChangedListener="@{vm.searchArtistQuery.watcher}"
+            app:text="@{vm.searchArtistQuery.value}"/>
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/artistsRecyclerView"

@@ -1,21 +1,13 @@
 package org.williamwong.spotifystreamer.fragments;
 
-import android.content.Context;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.EditorInfo;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import org.williamwong.spotifystreamer.R;
@@ -25,164 +17,82 @@ import org.williamwong.spotifystreamer.models.ArtistModel;
 import org.williamwong.spotifystreamer.viewmodels.ArtistViewModel;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
-import kaaes.spotify.webapi.android.SpotifyApi;
-import kaaes.spotify.webapi.android.SpotifyService;
-import kaaes.spotify.webapi.android.models.Artist;
-import kaaes.spotify.webapi.android.models.ArtistsPager;
-import kaaes.spotify.webapi.android.models.Image;
-import retrofit.Callback;
-import retrofit.RetrofitError;
-import retrofit.client.Response;
 
 /**
  * A fragment containing a search bar and a list of results.
  */
-public class ArtistFragment extends Fragment {
+public class ArtistFragment extends Fragment implements ArtistViewModel.OnArtistsChangedListener {
 
-    private static final int MIN_THUMBNAIL_WIDTH = 200;
     private static final String ARTIST_MODELS_KEY = "artistsModels";
 
-    private SpotifyService mSpotify = new SpotifyApi().getService();
     private ArrayList<ArtistModel> mArtistModels;
-    private ArtistAdapter mArtistAdapter;
-    private ArtistViewModel mViewModel;
+    private ArtistViewModel mArtistViewModel;
+    private FragmentArtistBinding mBinding;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
+        setupArtistModels(savedInstanceState);
+
         View view = inflater.inflate(R.layout.fragment_artist, container, false);
+        mBinding = FragmentArtistBinding.bind(view);
+        mArtistViewModel = new ArtistViewModel(mArtistModels, this);
+        mBinding.setVm(mArtistViewModel);
 
-        FragmentArtistBinding binding = FragmentArtistBinding.bind(view);
-        mViewModel = new ArtistViewModel();
-        binding.setVm(mViewModel);
+        setupRecyclerView(mBinding.artistsRecyclerView);
 
-        // Retrieve mArtistModels if fragment is not new. Otherwise, initialize mArtistModels
+        return view;
+    }
+
+    /**
+     * Retrieve list of artists if fragment is not new. Otherwise, initialize list of artists.
+     * @param savedInstanceState Bundle that may contain saved list of artists
+     */
+    private void setupArtistModels(Bundle savedInstanceState) {
         if (savedInstanceState != null &&
                 savedInstanceState.getParcelableArrayList(ARTIST_MODELS_KEY) != null) {
             mArtistModels = savedInstanceState.getParcelableArrayList(ARTIST_MODELS_KEY);
         } else {
             mArtistModels = new ArrayList<>();
         }
-
-        RecyclerView artistsRecyclerView = (RecyclerView) view.findViewById(R.id.artistsRecyclerView);
-        artistsRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        artistsRecyclerView.setItemAnimator(new DefaultItemAnimator());
-        mArtistAdapter = new ArtistAdapter(mArtistModels);
-        artistsRecyclerView.setAdapter(mArtistAdapter);
-
-        // TODO Add clear button
-        EditText searchArtistEditText = (EditText) view.findViewById(R.id.searchArtistEditText);
-        searchArtistEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                boolean handled = false;
-                if (actionId == EditorInfo.IME_ACTION_SEARCH) {
-                    // Close keyboard
-                    ((InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE))
-                            .toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
-
-                    // Execute search
-                    searchArtist(mViewModel.searchArtistQuery.get());
-
-                    handled = true;
-                }
-                return handled;
-            }
-        });
-
-        return view;
     }
 
     /**
-     * Searches Spotify for artist using Spotify API wrapper.
+     * Initialize Recycler View and attach the list of artists using an adapter
      *
-     * @param artist Name of artist for query
+     * @param recyclerView RecyclerView to initialize
      */
-    private void searchArtist(String artist) {
-        mViewModel.isLoading.set(true);
-
-        Map<String, Object> options = new HashMap<>();
-        options.put("limit", 10);
-        mSpotify.searchArtists(artist, options, new Callback<ArtistsPager>() {
-            Handler handler = new Handler(Looper.getMainLooper());
-
-            @Override
-            public void success(final ArtistsPager artistsPager, Response response) {
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        mViewModel.isLoading.set(false);
-                        updateArtists(artistsPager);
-                    }
-                });
-            }
-
-            @Override
-            public void failure(RetrofitError error) {
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        mViewModel.isLoading.set(false);
-                        Toast.makeText(getActivity(),
-                                getString(R.string.error_network),
-                                Toast.LENGTH_SHORT)
-                                .show();
-                    }
-                });
-            }
-        });
+    private void setupRecyclerView(RecyclerView recyclerView) {
+        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
+        ArtistAdapter artistAdapter = new ArtistAdapter(mArtistModels);
+        recyclerView.setAdapter(artistAdapter);
     }
 
     /**
-     * Updates mArtistModel list and refreshes the list adapter to display new data.
-     *
-     * @param artistsPager Results returned from Spotify API
+     * Remove reference to fragment from the view model when the view is destroyed
      */
-    private void updateArtists(ArtistsPager artistsPager) {
-        mArtistModels.clear();
-        if (artistsPager.artists.total > 0) {
-            for (Artist artist : artistsPager.artists.items) {
-                ArtistModel artistModel = new ArtistModel();
-                artistModel.setName(artist.name);
-                artistModel.setSpotifyId(artist.id);
-
-                List<Image> images = artist.images;
-                if (images != null && !images.isEmpty()) {
-                    int imageIndex = 0;
-                    for (int i = 0; i < images.size(); i++) {
-                        boolean isLast = (i + 1 == images.size());
-                        if (isLast) {
-                            imageIndex = i;
-                            break;
-                        } else if (images.get(i + 1).width < MIN_THUMBNAIL_WIDTH) {
-                            imageIndex = i;
-                            break;
-                        }
-                    }
-                    artistModel.setImageUrl(images.get(imageIndex).url);
-                }
-
-                // TODO add placeholder image
-
-                mArtistModels.add(artistModel);
-            }
-        } else {
-            Toast.makeText(getActivity(),
-                    getString(R.string.error_no_artists_found),
-                    Toast.LENGTH_SHORT)
-                    .show();
-        }
-
-        mArtistAdapter.notifyDataSetChanged();
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        mArtistViewModel.removeOnArtistsChangedListener();
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putParcelableArrayList(ARTIST_MODELS_KEY, mArtistModels);
+    }
+
+    @Override
+    public void onArtistsChanged(List<ArtistModel> artists) {
+        mBinding.artistsRecyclerView.getAdapter().notifyDataSetChanged();
+    }
+
+    @Override
+    public void onErrorReceived(int resource) {
+        Toast.makeText(getActivity(), resource, Toast.LENGTH_SHORT).show();
     }
 }
