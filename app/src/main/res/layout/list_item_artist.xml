@@ -8,7 +8,7 @@
             type="org.williamwong.spotifystreamer.viewmodels.ItemArtistViewModel"
             />
     </data>
-    <LinearLayout android:id="@+id/artistLinearLayout"
+    <LinearLayout android:id="@+id/artistItemView"
                   android:layout_width="match_parent"
                   android:layout_height="wrap_content"
                   android:background="@drawable/touch_selector"
@@ -17,7 +17,6 @@
                   android:onClick="@{vm.onItemClick}">
 
         <ImageView
-            android:id="@+id/artistThumbnailImageView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/list_item_padding"
@@ -28,7 +27,6 @@
             app:srcFitCenterCrop="@{vm.imageUrl}"/>
 
         <TextView
-            android:id="@+id/artistNameTextView"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"

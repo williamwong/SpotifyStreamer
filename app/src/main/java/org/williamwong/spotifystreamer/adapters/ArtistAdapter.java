@@ -48,13 +48,13 @@ public class ArtistAdapter extends RecyclerView.Adapter<ArtistAdapter.ArtistView
         final ListItemArtistBinding mBinding;
 
         public ArtistViewHolder(ListItemArtistBinding binding) {
-            super(binding.artistLinearLayout);
+            super(binding.artistItemView);
             mBinding = binding;
         }
 
         public void bindArtist(ArtistModel artist) {
             if (mBinding.getVm() == null) {
-                mBinding.setVm(new ItemArtistViewModel(itemView.getContext(), artist));
+                mBinding.setVm(new ItemArtistViewModel(artist));
             } else {
                 mBinding.getVm().setArtist(artist);
             }

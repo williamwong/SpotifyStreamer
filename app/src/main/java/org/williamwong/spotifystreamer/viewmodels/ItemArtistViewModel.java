@@ -11,11 +11,9 @@ import org.williamwong.spotifystreamer.models.ArtistModel;
  * Created by williamwong on 12/13/15.
  */
 public class ItemArtistViewModel extends BaseObservable{
-    private final Context mContext;
     private ArtistModel mArtist;
 
-    public ItemArtistViewModel(Context context, ArtistModel artist) {
-        mContext = context;
+    public ItemArtistViewModel(ArtistModel artist) {
         mArtist = artist;
     }
 
@@ -28,8 +26,9 @@ public class ItemArtistViewModel extends BaseObservable{
     }
 
     public void onItemClick(View v) {
-        if (mContext instanceof OnArtistClickListener) {
-            ((OnArtistClickListener) mContext).onArtistSelected(mArtist.getSpotifyId(), mArtist.getName());
+        Context context = v.getContext();
+        if (context instanceof OnArtistClickListener) {
+            ((OnArtistClickListener) context).onArtistSelected(mArtist.getSpotifyId(), mArtist.getName());
         }
     }
 

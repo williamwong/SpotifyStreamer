@@ -1,18 +1,14 @@
 package org.williamwong.spotifystreamer.adapters;
 
-import android.content.Context;
+import android.databinding.DataBindingUtil;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
-
-import com.squareup.picasso.Picasso;
 
 import org.williamwong.spotifystreamer.R;
+import org.williamwong.spotifystreamer.databinding.ListItemTrackBinding;
 import org.williamwong.spotifystreamer.models.TrackModel;
-import org.williamwong.spotifystreamer.services.MusicService;
+import org.williamwong.spotifystreamer.viewmodels.ItemTrackViewModel;
 
 import java.util.List;
 
@@ -22,23 +18,25 @@ import java.util.List;
  */
 public class TrackAdapter extends RecyclerView.Adapter<TrackAdapter.TrackViewHolder> {
 
-    private final Context mContext;
     private final List<TrackModel> mTrackModels;
 
-    public TrackAdapter(Context context, List<TrackModel> trackModels) {
-        mContext = context;
+    public TrackAdapter(List<TrackModel> trackModels) {
         mTrackModels = trackModels;
     }
 
     @Override
     public TrackViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(mContext).inflate(R.layout.list_item_track, parent, false);
-        return new TrackViewHolder(v);
+        ListItemTrackBinding binding = DataBindingUtil.inflate(
+                LayoutInflater.from(parent.getContext()),
+                R.layout.list_item_track,
+                parent,
+                false);
+        return new TrackViewHolder(binding);
     }
 
     @Override
     public void onBindViewHolder(TrackViewHolder holder, int position) {
-        holder.bindTrack(mContext, mTrackModels, position);
+        holder.bindTrack(mTrackModels, position);
     }
 
     @Override
@@ -46,50 +44,21 @@ public class TrackAdapter extends RecyclerView.Adapter<TrackAdapter.TrackViewHol
         return mTrackModels.size();
     }
 
-    public interface OnTrackClickListener {
-        void onTrackSelected();
-    }
+    public static class TrackViewHolder extends RecyclerView.ViewHolder{
+        final ListItemTrackBinding mBinding;
 
-    public static class TrackViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        TextView trackNameTextView;
-        TextView albumNameTextView;
-        ImageView trackThumbnailImageView;
-        private List<TrackModel> mTrackModels;
-        private int mPosition;
-
-        public TrackViewHolder(View v) {
-            super(v);
-            v.setOnClickListener(this);
-            trackNameTextView = (TextView) v.findViewById(R.id.trackNameTextView);
-            albumNameTextView = (TextView) v.findViewById(R.id.albumNameTextView);
-            trackThumbnailImageView = (ImageView) v.findViewById(R.id.trackThumbnailImageView);
+        public TrackViewHolder(ListItemTrackBinding binding) {
+            super(binding.trackItemView);
+            mBinding = binding;
         }
 
-        public void bindTrack(Context context, List<TrackModel> trackModels, int position) {
-            mTrackModels = trackModels;
-            mPosition = position;
-
-            TrackModel track = mTrackModels.get(mPosition);
-            trackNameTextView.setText(track.getTrackName());
-            albumNameTextView.setText(track.getAlbumName());
-            Picasso.with(context)
-                    .load(track.getImageUrl())
-                    .fit().centerCrop()
-                    .into(trackThumbnailImageView);
-        }
-
-        @Override
-        public void onClick(View v) {
-            MusicService service = MusicService.getMusicService();
-            service.setTrackModels(mTrackModels);
-            service.setCurrentTrack(mPosition);
-            service.playSong();
-
-            // Launch PlayerFragment and/or Activity
-            Context context = v.getContext();
-            if (context instanceof OnTrackClickListener) {
-                ((OnTrackClickListener) context).onTrackSelected();
+        public void bindTrack(List<TrackModel> trackModels, int position) {
+            if (mBinding.getVm() == null) {
+                mBinding.setVm(new ItemTrackViewModel(trackModels, position));
+            } else {
+                mBinding.getVm().setTrack(trackModels, position);
             }
         }
+
     }
 }

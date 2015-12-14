@@ -84,7 +84,7 @@ public class TrackFragment extends Fragment {
         RecyclerView trackRecyclerView = (RecyclerView) view.findViewById(R.id.tracksRecyclerView);
         trackRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         trackRecyclerView.setItemAnimator(new DefaultItemAnimator());
-        mTrackAdapter = new TrackAdapter(getActivity(), mTrackModels);
+        mTrackAdapter = new TrackAdapter(mTrackModels);
         trackRecyclerView.setAdapter(mTrackAdapter);
 
         return view;
