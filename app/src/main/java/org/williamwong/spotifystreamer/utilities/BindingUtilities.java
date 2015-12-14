@@ -17,6 +17,11 @@ public class BindingUtilities {
         Picasso.with(view.getContext()).load(source).into(view);
     }
 
+    @BindingAdapter("srcFitCenterCrop")
+    public static void setImageUrlFitCenterCrop(ImageView view, String source) {
+        Picasso.with(view.getContext()).load(source).fit().centerCrop().into(view);
+    }
+
     @BindingAdapter("text")
     public static void bindEditText(EditText editText, CharSequence value) {
         if (!editText.getText().toString().equals(value.toString())) {

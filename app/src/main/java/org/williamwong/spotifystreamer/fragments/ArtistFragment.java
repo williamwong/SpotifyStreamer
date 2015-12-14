@@ -71,7 +71,7 @@ public class ArtistFragment extends Fragment {
         RecyclerView artistsRecyclerView = (RecyclerView) view.findViewById(R.id.artistsRecyclerView);
         artistsRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         artistsRecyclerView.setItemAnimator(new DefaultItemAnimator());
-        mArtistAdapter = new ArtistAdapter(getActivity(), mArtistModels);
+        mArtistAdapter = new ArtistAdapter(mArtistModels);
         artistsRecyclerView.setAdapter(mArtistAdapter);
 
         // TODO Add clear button

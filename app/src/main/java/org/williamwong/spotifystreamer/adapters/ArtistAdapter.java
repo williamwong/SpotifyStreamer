@@ -1,17 +1,14 @@
 package org.williamwong.spotifystreamer.adapters;
 
-import android.content.Context;
+import android.databinding.DataBindingUtil;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
-
-import com.squareup.picasso.Picasso;
 
 import org.williamwong.spotifystreamer.R;
+import org.williamwong.spotifystreamer.databinding.ListItemArtistBinding;
 import org.williamwong.spotifystreamer.models.ArtistModel;
+import org.williamwong.spotifystreamer.viewmodels.ItemArtistViewModel;
 
 import java.util.List;
 
@@ -22,22 +19,24 @@ import java.util.List;
 public class ArtistAdapter extends RecyclerView.Adapter<ArtistAdapter.ArtistViewHolder> {
 
     private final List<ArtistModel> mArtistModels;
-    private final Context mContext;
 
-    public ArtistAdapter(Context context, List<ArtistModel> artistModels) {
-        mContext = context;
+    public ArtistAdapter(List<ArtistModel> artistModels) {
         mArtistModels = artistModels;
     }
 
     @Override
     public ArtistViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_artist, parent, false);
-        return new ArtistViewHolder(v);
+        ListItemArtistBinding binding = DataBindingUtil.inflate(
+                LayoutInflater.from(parent.getContext()),
+                R.layout.list_item_artist,
+                parent,
+                false);
+        return new ArtistViewHolder(binding);
     }
 
     @Override
     public void onBindViewHolder(ArtistViewHolder holder, int position) {
-        holder.bindArtist(mContext, mArtistModels.get(position));
+        holder.bindArtist(mArtistModels.get(position));
     }
 
     @Override
@@ -45,36 +44,19 @@ public class ArtistAdapter extends RecyclerView.Adapter<ArtistAdapter.ArtistView
         return mArtistModels.size();
     }
 
-    public interface OnArtistClickListener {
-        void onArtistSelected(String spotifyId, String artistName);
-    }
+    public static class ArtistViewHolder extends RecyclerView.ViewHolder {
+        final ListItemArtistBinding mBinding;
 
-    public static class ArtistViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        ArtistModel mArtist;
-        TextView mArtistNameTextView;
-        ImageView mArtistThumbnailImageView;
-
-        public ArtistViewHolder(View v) {
-            super(v);
-            v.setOnClickListener(this);
-            mArtistNameTextView = (TextView) v.findViewById(R.id.artistNameTextView);
-            mArtistThumbnailImageView = (ImageView) v.findViewById(R.id.artistThumbnailImageView);
+        public ArtistViewHolder(ListItemArtistBinding binding) {
+            super(binding.artistLinearLayout);
+            mBinding = binding;
         }
 
-        public void bindArtist(Context context, ArtistModel artist) {
-            mArtist = artist;
-            mArtistNameTextView.setText(mArtist.getName());
-            Picasso.with(context)
-                    .load(mArtist.getImageUrl())
-                    .fit().centerCrop()
-                    .into(mArtistThumbnailImageView);
-        }
-
-        @Override
-        public void onClick(View v) {
-            Context context = v.getContext();
-            if (context instanceof ArtistAdapter.OnArtistClickListener) {
-                ((ArtistAdapter.OnArtistClickListener) context).onArtistSelected(mArtist.getSpotifyId(), mArtist.getName());
+        public void bindArtist(ArtistModel artist) {
+            if (mBinding.getVm() == null) {
+                mBinding.setVm(new ItemArtistViewModel(itemView.getContext(), artist));
+            } else {
+                mBinding.getVm().setArtist(artist);
             }
         }
     }
