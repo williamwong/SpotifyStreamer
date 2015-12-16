@@ -11,13 +11,13 @@ import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import org.williamwong.spotifystreamer.R;
-import org.williamwong.spotifystreamer.adapters.ArtistAdapter;
-import org.williamwong.spotifystreamer.adapters.TrackAdapter;
 import org.williamwong.spotifystreamer.fragments.PlayerFragment;
 import org.williamwong.spotifystreamer.fragments.TrackFragment;
 import org.williamwong.spotifystreamer.services.MusicService;
+import org.williamwong.spotifystreamer.viewmodels.ItemArtistViewModel;
+import org.williamwong.spotifystreamer.viewmodels.ItemTrackViewModel;
 
-public class MainActivity extends AppCompatActivity implements ArtistAdapter.OnArtistClickListener, TrackAdapter.OnTrackClickListener {
+public class MainActivity extends AppCompatActivity implements ItemArtistViewModel.OnArtistClickListener, ItemTrackViewModel.OnTrackClickListener {
 
     public static final String SPOTIFY_ID_KEY = "spotifyId";
     public static final String ARTIST_NAME_KEY = "artistName";
@@ -79,7 +79,7 @@ public class MainActivity extends AppCompatActivity implements ArtistAdapter.OnA
 
     /**
      * Handles artist selected and start new activity with track results.
-     * This is a callback from the {@link org.williamwong.spotifystreamer.adapters.ArtistAdapter.OnArtistClickListener}
+     * This is a callback from the {@link ItemArtistViewModel.OnArtistClickListener}
      * class.
      *
      * @param spotifyId  a Spotify id representing the artist
@@ -102,7 +102,7 @@ public class MainActivity extends AppCompatActivity implements ArtistAdapter.OnA
 
     /**
      * Handles track selected and starts new PlayerFragment activity.
-     * This is a callback from the {@link org.williamwong.spotifystreamer.adapters.TrackAdapter.OnTrackClickListener}
+     * This is a callback from the {@link ItemTrackViewModel.OnTrackClickListener}
      * class.
      */
     @Override
