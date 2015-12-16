@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.preference.PreferenceManager;
-import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -26,6 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import icepick.State;
 import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.ArtistSimple;
@@ -39,12 +39,11 @@ import retrofit.client.Response;
 /**
  * A fragment containing a list of top ten tracks from an artist.
  */
-public class TrackFragment extends Fragment {
+public class TrackFragment extends BaseFragment {
 
-    private static final String TRACK_MODELS_KEY = "trackModels";
-
+    @State
+    ArrayList<TrackModel> mTrackModels;
     private SpotifyService mSpotify = new SpotifyApi().getService();
-    private ArrayList<TrackModel> mTrackModels;
     private TrackAdapter mTrackAdapter;
     private String mSpotifyId;
     private ProgressBar mTrackProgressBar;
@@ -69,14 +68,12 @@ public class TrackFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
         View view = inflater.inflate(R.layout.fragment_track, container, false);
 
         mTrackProgressBar = (ProgressBar) view.findViewById(R.id.trackProgressBar);
 
-        if (savedInstanceState != null &&
-                savedInstanceState.getParcelableArrayList(TRACK_MODELS_KEY) != null) {
-            mTrackModels = savedInstanceState.getParcelableArrayList(TRACK_MODELS_KEY);
-        } else {
+        if (mTrackModels == null) {
             mTrackModels = new ArrayList<>();
             searchTracks(mSpotifyId);
         }
@@ -182,11 +179,5 @@ public class TrackFragment extends Fragment {
         }
 
         mTrackAdapter.notifyDataSetChanged();
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putParcelableArrayList(TRACK_MODELS_KEY, mTrackModels);
     }
 }

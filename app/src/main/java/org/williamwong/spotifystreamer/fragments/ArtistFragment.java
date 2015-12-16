@@ -1,7 +1,6 @@
 package org.williamwong.spotifystreamer.fragments;
 
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -19,14 +18,15 @@ import org.williamwong.spotifystreamer.viewmodels.ArtistViewModel;
 import java.util.ArrayList;
 import java.util.List;
 
+import icepick.State;
+
 /**
  * A fragment containing a search bar and a list of results.
  */
-public class ArtistFragment extends Fragment implements ArtistViewModel.OnArtistsChangedListener {
+public class ArtistFragment extends BaseFragment implements ArtistViewModel.OnArtistsChangedListener {
 
-    private static final String ARTIST_MODELS_KEY = "artistsModels";
-
-    private ArrayList<ArtistModel> mArtistModels;
+    @State
+    ArrayList<ArtistModel> mArtistModels;
     private ArtistViewModel mArtistViewModel;
     private FragmentArtistBinding mBinding;
 
@@ -34,7 +34,9 @@ public class ArtistFragment extends Fragment implements ArtistViewModel.OnArtist
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        setupArtistModels(savedInstanceState);
+        if (mArtistModels == null) {
+            mArtistModels = new ArrayList<>();
+        }
 
         View view = inflater.inflate(R.layout.fragment_artist, container, false);
         mBinding = FragmentArtistBinding.bind(view);
@@ -44,19 +46,6 @@ public class ArtistFragment extends Fragment implements ArtistViewModel.OnArtist
         setupRecyclerView(mBinding.artistsRecyclerView);
 
         return view;
-    }
-
-    /**
-     * Retrieve list of artists if fragment is not new. Otherwise, initialize list of artists.
-     * @param savedInstanceState Bundle that may contain saved list of artists
-     */
-    private void setupArtistModels(Bundle savedInstanceState) {
-        if (savedInstanceState != null &&
-                savedInstanceState.getParcelableArrayList(ARTIST_MODELS_KEY) != null) {
-            mArtistModels = savedInstanceState.getParcelableArrayList(ARTIST_MODELS_KEY);
-        } else {
-            mArtistModels = new ArrayList<>();
-        }
     }
 
     /**
@@ -78,12 +67,6 @@ public class ArtistFragment extends Fragment implements ArtistViewModel.OnArtist
     public void onDestroyView() {
         super.onDestroyView();
         mArtistViewModel.removeOnArtistsChangedListener();
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putParcelableArrayList(ARTIST_MODELS_KEY, mArtistModels);
     }
 
     @Override
