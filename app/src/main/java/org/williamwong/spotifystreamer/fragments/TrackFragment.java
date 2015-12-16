@@ -64,7 +64,7 @@ public class TrackFragment extends BaseFragment implements TrackViewModel.OnTrac
         mBinding = FragmentTrackBinding.bind(view);
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
         Resources resources = getResources();
-        mTrackViewModel = new TrackViewModel(mTrackModels, preferences, resources);
+        mTrackViewModel = new TrackViewModel(preferences, resources);
         mTrackViewModel.setOnTrackListChangedListener(this);
         mBinding.setVm(mTrackViewModel);
 
@@ -90,6 +90,8 @@ public class TrackFragment extends BaseFragment implements TrackViewModel.OnTrac
 
     @Override
     public void onTrackListChanged(List<TrackModel> trackModels) {
+        mTrackModels.clear();
+        for (TrackModel track : trackModels) mTrackModels.add(track);
         mBinding.tracksRecyclerView.getAdapter().notifyDataSetChanged();
     }
 

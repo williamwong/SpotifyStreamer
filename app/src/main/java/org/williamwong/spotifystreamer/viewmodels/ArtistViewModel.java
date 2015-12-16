@@ -12,6 +12,7 @@ import org.williamwong.spotifystreamer.R;
 import org.williamwong.spotifystreamer.models.ArtistModel;
 import org.williamwong.spotifystreamer.utilities.BindableString;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,17 +32,13 @@ import retrofit.client.Response;
  */
 public class ArtistViewModel {
 
+    public final ObservableBoolean isLoading = new ObservableBoolean(false);
+    public final BindableString searchArtistQuery = new BindableString();
     private final Resources mResources;
     private final SpotifyService mSpotify = new SpotifyApi().getService();
-
-    public ObservableBoolean isLoading = new ObservableBoolean(false);
-    public BindableString searchArtistQuery = new BindableString();
-
-    private List<ArtistModel> mArtistModels;
     private OnArtistsChangedListener mListener;
 
-    public ArtistViewModel(List<ArtistModel> artistModels, Resources resources) {
-        mArtistModels = artistModels;
+    public ArtistViewModel(Resources resources) {
         mResources = resources;
     }
 
@@ -98,8 +95,8 @@ public class ArtistViewModel {
      * @param artistsPager Results returned from Spotify API
      */
     private void updateArtistModels(ArtistsPager artistsPager) {
-        mArtistModels.clear();
         if (artistsPager.artists.total > 0) {
+            List<ArtistModel> artistModels = new ArrayList<>();
             for (Artist artist : artistsPager.artists.items) {
                 ArtistModel artistModel = new ArtistModel();
                 artistModel.setName(artist.name);
@@ -123,13 +120,12 @@ public class ArtistViewModel {
 
                 // TODO add placeholder image
 
-                mArtistModels.add(artistModel);
+                artistModels.add(artistModel);
             }
+            if (mListener != null) mListener.onArtistsChanged(artistModels);
         } else {
             if (mListener != null) mListener.onErrorReceived(R.string.error_no_artists_found);
         }
-
-        if (mListener != null) mListener.onArtistsChanged(mArtistModels);
     }
 
     public void setOnArtistsChangedListener(OnArtistsChangedListener listener) {

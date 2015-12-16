@@ -44,7 +44,7 @@ public class ArtistFragment extends BaseFragment implements ArtistViewModel.OnAr
         View view = inflater.inflate(R.layout.fragment_artist, container, false);
         mBinding = FragmentArtistBinding.bind(view);
         Resources resources = getResources();
-        mArtistViewModel = new ArtistViewModel(mArtistModels, resources);
+        mArtistViewModel = new ArtistViewModel(resources);
         mArtistViewModel.setOnArtistsChangedListener(this);
         mBinding.setVm(mArtistViewModel);
 
@@ -81,6 +81,8 @@ public class ArtistFragment extends BaseFragment implements ArtistViewModel.OnAr
 
     @Override
     public void onArtistsChanged(List<ArtistModel> artists) {
+        mArtistModels.clear();
+        for (ArtistModel artist : artists) mArtistModels.add(artist);
         mBinding.artistsRecyclerView.getAdapter().notifyDataSetChanged();
         hideSoftKeyboard();
     }

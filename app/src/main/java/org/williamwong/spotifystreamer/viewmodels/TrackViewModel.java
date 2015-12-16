@@ -31,16 +31,13 @@ import retrofit.client.Response;
  */
 public class TrackViewModel {
 
+    public final ObservableBoolean isLoading = new ObservableBoolean(false);
     private final Resources mResources;
     private final SpotifyService mSpotify = new SpotifyApi().getService();
     private final SharedPreferences mPreferences;
-
-    public ObservableBoolean isLoading = new ObservableBoolean(false);
-    private List<TrackModel> mTrackModels;
     private OnTrackListChangedListener mListener;
 
-    public TrackViewModel(List<TrackModel> trackModels, SharedPreferences preferences, Resources resources) {
-        mTrackModels = trackModels;
+    public TrackViewModel(SharedPreferences preferences, Resources resources) {
         mPreferences = preferences;
         mResources = resources;
     }
@@ -90,8 +87,8 @@ public class TrackViewModel {
      * @param tracks List of tracks returned from Spotify API
      */
     private void updateTracks(List<Track> tracks) {
-        mTrackModels.clear();
         if (!tracks.isEmpty()) {
+            List<TrackModel> trackModels = new ArrayList<>();
             for (Track track : tracks) {
                 TrackModel trackModel = new TrackModel();
                 trackModel.setTrackName(track.name);
@@ -122,13 +119,12 @@ public class TrackViewModel {
                 trackModel.setArtistName(TextUtils.join(", ", artistNames));
 
                 // TODO set placeholder image
-                mTrackModels.add(trackModel);
+                trackModels.add(trackModel);
             }
+            if (mListener != null) mListener.onTrackListChanged(trackModels);
         } else {
             if (mListener != null) mListener.onErrorReceived(R.string.error_no_tracks_found);
         }
-
-        if (mListener != null) mListener.onTrackListChanged(mTrackModels);
     }
 
     public void setOnTrackListChangedListener(OnTrackListChangedListener listener) {
