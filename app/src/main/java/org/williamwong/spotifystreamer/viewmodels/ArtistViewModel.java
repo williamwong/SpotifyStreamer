@@ -9,6 +9,7 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.TextView;
 
 import org.williamwong.spotifystreamer.R;
+import org.williamwong.spotifystreamer.SpotifyApplication;
 import org.williamwong.spotifystreamer.models.ArtistModel;
 import org.williamwong.spotifystreamer.utilities.BindableString;
 
@@ -17,7 +18,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import kaaes.spotify.webapi.android.SpotifyApi;
+import javax.inject.Inject;
+
 import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.Artist;
 import kaaes.spotify.webapi.android.models.ArtistsPager;
@@ -34,12 +36,14 @@ public class ArtistViewModel {
 
     public final ObservableBoolean isLoading = new ObservableBoolean(false);
     public final BindableString searchArtistQuery = new BindableString();
-    private final Resources mResources;
-    private final SpotifyService mSpotify = new SpotifyApi().getService();
+    @Inject
+    Resources mResources;
+    @Inject
+    SpotifyService mSpotify;
     private OnArtistsChangedListener mListener;
 
-    public ArtistViewModel(Resources resources) {
-        mResources = resources;
+    public ArtistViewModel() {
+        SpotifyApplication.getContext().getNetComponent().inject(this);
     }
 
     public boolean onSearchAction(TextView view, int actionId, KeyEvent event) {
