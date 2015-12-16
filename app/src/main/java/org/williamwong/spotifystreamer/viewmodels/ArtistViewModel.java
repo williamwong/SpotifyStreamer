@@ -1,6 +1,7 @@
 package org.williamwong.spotifystreamer.viewmodels;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.databinding.ObservableBoolean;
 import android.os.Handler;
 import android.os.Looper;
@@ -32,7 +33,8 @@ import retrofit.client.Response;
  */
 public class ArtistViewModel {
 
-    private static final int MIN_THUMBNAIL_WIDTH = 200;
+    private final Resources mResources;
+    private final SpotifyService mSpotify = new SpotifyApi().getService();
 
     public ObservableBoolean isLoading = new ObservableBoolean(false);
     public BindableString searchArtistQuery = new BindableString();
@@ -40,9 +42,9 @@ public class ArtistViewModel {
     private List<ArtistModel> mArtistModels;
     private OnArtistsChangedListener mListener;
 
-    public ArtistViewModel(List<ArtistModel> artistModels, OnArtistsChangedListener listener) {
+    public ArtistViewModel(List<ArtistModel> artistModels, Resources resources) {
         mArtistModels = artistModels;
-        mListener = listener;
+        mResources = resources;
     }
 
     public boolean onSearchAction(TextView view, int actionId, KeyEvent event) {
@@ -72,8 +74,7 @@ public class ArtistViewModel {
 
         Map<String, Object> options = new HashMap<>();
         options.put("limit", 10);
-        SpotifyService spotify = new SpotifyApi().getService();
-        spotify.searchArtists(artist, options, new Callback<ArtistsPager>() {
+        mSpotify.searchArtists(artist, options, new Callback<ArtistsPager>() {
             Handler handler = new Handler(Looper.getMainLooper());
 
             @Override
@@ -120,7 +121,7 @@ public class ArtistViewModel {
                         if (isLast) {
                             imageIndex = i;
                             break;
-                        } else if (images.get(i + 1).width < MIN_THUMBNAIL_WIDTH) {
+                        } else if (images.get(i + 1).width < mResources.getInteger(R.integer.min_thumbnail_pixel_width)) {
                             imageIndex = i;
                             break;
                         }

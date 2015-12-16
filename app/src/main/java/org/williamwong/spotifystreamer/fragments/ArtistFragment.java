@@ -1,5 +1,6 @@
 package org.williamwong.spotifystreamer.fragments;
 
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
@@ -40,7 +41,9 @@ public class ArtistFragment extends BaseFragment implements ArtistViewModel.OnAr
 
         View view = inflater.inflate(R.layout.fragment_artist, container, false);
         mBinding = FragmentArtistBinding.bind(view);
-        mArtistViewModel = new ArtistViewModel(mArtistModels, this);
+        Resources resources = getResources();
+        mArtistViewModel = new ArtistViewModel(mArtistModels, resources);
+        mArtistViewModel.setOnArtistsChangedListener(this);
         mBinding.setVm(mArtistViewModel);
 
         setupRecyclerView(mBinding.artistsRecyclerView);
