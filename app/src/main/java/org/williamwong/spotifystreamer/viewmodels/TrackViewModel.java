@@ -8,6 +8,7 @@ import android.os.Looper;
 import android.text.TextUtils;
 
 import org.williamwong.spotifystreamer.R;
+import org.williamwong.spotifystreamer.SpotifyApplication;
 import org.williamwong.spotifystreamer.models.TrackModel;
 
 import java.util.ArrayList;
@@ -15,7 +16,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import kaaes.spotify.webapi.android.SpotifyApi;
+import javax.inject.Inject;
+
 import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.ArtistSimple;
 import kaaes.spotify.webapi.android.models.Image;
@@ -32,14 +34,16 @@ import retrofit.client.Response;
 public class TrackViewModel {
 
     public final ObservableBoolean isLoading = new ObservableBoolean(false);
-    private final Resources mResources;
-    private final SpotifyService mSpotify = new SpotifyApi().getService();
-    private final SharedPreferences mPreferences;
+    @Inject
+    Resources mResources;
+    @Inject
+    SpotifyService mSpotify;
+    @Inject
+    SharedPreferences mPreferences;
     private OnTrackListChangedListener mListener;
 
-    public TrackViewModel(SharedPreferences preferences, Resources resources) {
-        mPreferences = preferences;
-        mResources = resources;
+    public TrackViewModel() {
+        SpotifyApplication.getContext().getNetComponent().inject(this);
     }
 
     /**

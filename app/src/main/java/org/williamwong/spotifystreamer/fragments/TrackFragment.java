@@ -1,9 +1,6 @@
 package org.williamwong.spotifystreamer.fragments;
 
-import android.content.SharedPreferences;
-import android.content.res.Resources;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -62,9 +59,7 @@ public class TrackFragment extends BaseFragment implements TrackViewModel.OnTrac
 
         View view = inflater.inflate(R.layout.fragment_track, container, false);
         mBinding = FragmentTrackBinding.bind(view);
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        Resources resources = getResources();
-        mTrackViewModel = new TrackViewModel(preferences, resources);
+        mTrackViewModel = new TrackViewModel();
         mTrackViewModel.setOnTrackListChangedListener(this);
         mBinding.setVm(mTrackViewModel);
 
