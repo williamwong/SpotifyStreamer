@@ -1,5 +1,6 @@
 package org.williamwong.spotifystreamer.fragments;
 
+import android.content.Context;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -8,6 +9,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
 import org.williamwong.spotifystreamer.R;
@@ -63,6 +65,11 @@ public class ArtistFragment extends BaseFragment implements ArtistViewModel.OnAr
         recyclerView.setAdapter(artistAdapter);
     }
 
+    private void hideSoftKeyboard() {
+        ((InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE))
+                .toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+    }
+
     /**
      * Remove reference to fragment from the view model when the view is destroyed
      */
@@ -75,6 +82,7 @@ public class ArtistFragment extends BaseFragment implements ArtistViewModel.OnAr
     @Override
     public void onArtistsChanged(List<ArtistModel> artists) {
         mBinding.artistsRecyclerView.getAdapter().notifyDataSetChanged();
+        hideSoftKeyboard();
     }
 
     @Override

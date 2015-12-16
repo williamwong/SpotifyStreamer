@@ -1,13 +1,11 @@
 package org.williamwong.spotifystreamer.viewmodels;
 
-import android.content.Context;
 import android.content.res.Resources;
 import android.databinding.ObservableBoolean;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.KeyEvent;
 import android.view.inputmethod.EditorInfo;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 
 import org.williamwong.spotifystreamer.R;
@@ -49,17 +47,11 @@ public class ArtistViewModel {
 
     public boolean onSearchAction(TextView view, int actionId, KeyEvent event) {
         if (actionId == EditorInfo.IME_ACTION_SEARCH) {
-            // Close keyboard
-            ((InputMethodManager) view.getContext().getSystemService(Context.INPUT_METHOD_SERVICE))
-                    .toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
-
-            // Execute search
             if (searchArtistQuery.get().length() > 0) {
                 searchArtist();
             } else {
                 if (mListener != null) mListener.onErrorReceived(R.string.error_invalid_search);
             }
-
             return true;
         }
         return false;
