@@ -2,6 +2,8 @@ package org.williamwong.spotifystreamer.utilities;
 
 import android.databinding.BindingAdapter;
 import android.databinding.ObservableField;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.widget.EditText;
@@ -11,7 +13,17 @@ import android.widget.EditText;
  * Adapter to allow for two-way binding with EditTexts
  * Created by williamwong on 12/14/15.
  */
-public class BindableString {
+public class BindableString implements Parcelable {
+
+    public static final Parcelable.Creator<BindableString> CREATOR = new Parcelable.Creator<BindableString>() {
+        public BindableString createFromParcel(Parcel source) {
+            return new BindableString(source);
+        }
+
+        public BindableString[] newArray(int size) {
+            return new BindableString[size];
+        }
+    };
     public ObservableField<String> value = new ObservableField<>("");
     public TextWatcher watcher = new TextWatcher() {
         @Override
@@ -40,6 +52,10 @@ public class BindableString {
         this.value.set(value);
     }
 
+    protected BindableString(Parcel in) {
+        this.value = (ObservableField<String>) in.readSerializable();
+    }
+
     @BindingAdapter("text")
     public static void bindEditText(EditText editText, CharSequence value) {
         if (!editText.getText().toString().equals(value.toString())) {
@@ -47,11 +63,23 @@ public class BindableString {
         }
     }
 
+    // Parcelable
+
     public String get() {
         return value.get();
     }
 
     public void set(String value) {
         this.value.set(value);
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeSerializable(this.value);
     }
 }

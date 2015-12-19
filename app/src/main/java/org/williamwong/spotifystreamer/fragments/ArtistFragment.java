@@ -14,11 +14,7 @@ import android.widget.Toast;
 import org.williamwong.spotifystreamer.R;
 import org.williamwong.spotifystreamer.adapters.ArtistAdapter;
 import org.williamwong.spotifystreamer.databinding.FragmentArtistBinding;
-import org.williamwong.spotifystreamer.models.ArtistModel;
 import org.williamwong.spotifystreamer.viewmodels.ArtistViewModel;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import icepick.State;
 
@@ -28,21 +24,19 @@ import icepick.State;
 public class ArtistFragment extends BaseFragment implements ArtistViewModel.OnArtistsChangedListener {
 
     @State
-    ArrayList<ArtistModel> mArtistModels;
-    private ArtistViewModel mArtistViewModel;
+    ArtistViewModel mArtistViewModel;
     private FragmentArtistBinding mBinding;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        if (mArtistModels == null) {
-            mArtistModels = new ArrayList<>();
+        if (mArtistViewModel == null) {
+            mArtistViewModel = new ArtistViewModel();
         }
 
         View view = inflater.inflate(R.layout.fragment_artist, container, false);
         mBinding = FragmentArtistBinding.bind(view);
-        mArtistViewModel = new ArtistViewModel();
         mArtistViewModel.setOnArtistsChangedListener(this);
         mBinding.setVm(mArtistViewModel);
 
@@ -59,7 +53,7 @@ public class ArtistFragment extends BaseFragment implements ArtistViewModel.OnAr
     private void setupRecyclerView(RecyclerView recyclerView) {
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         recyclerView.setItemAnimator(new DefaultItemAnimator());
-        ArtistAdapter artistAdapter = new ArtistAdapter(mArtistModels);
+        ArtistAdapter artistAdapter = new ArtistAdapter(mArtistViewModel.mArtistModels);
         recyclerView.setAdapter(artistAdapter);
     }
 
@@ -78,9 +72,7 @@ public class ArtistFragment extends BaseFragment implements ArtistViewModel.OnAr
     }
 
     @Override
-    public void onArtistsChanged(List<ArtistModel> artists) {
-        mArtistModels.clear();
-        for (ArtistModel artist : artists) mArtistModels.add(artist);
+    public void onArtistsChanged() {
         mBinding.artistsRecyclerView.getAdapter().notifyDataSetChanged();
         hideSoftKeyboard();
     }

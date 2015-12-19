@@ -13,11 +13,7 @@ import org.williamwong.spotifystreamer.R;
 import org.williamwong.spotifystreamer.activities.MainActivity;
 import org.williamwong.spotifystreamer.adapters.TrackAdapter;
 import org.williamwong.spotifystreamer.databinding.FragmentTrackBinding;
-import org.williamwong.spotifystreamer.models.TrackModel;
 import org.williamwong.spotifystreamer.viewmodels.TrackViewModel;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import icepick.State;
 
@@ -27,10 +23,9 @@ import icepick.State;
 public class TrackFragment extends BaseFragment implements TrackViewModel.OnTrackListChangedListener {
 
     @State
-    ArrayList<TrackModel> mTrackModels;
+    TrackViewModel mTrackViewModel;
     private String mSpotifyId;
     private FragmentTrackBinding mBinding;
-    private TrackViewModel mTrackViewModel;
 
     public static TrackFragment newInstance(String spotifyId) {
         TrackFragment trackFragment = new TrackFragment();
@@ -53,17 +48,16 @@ public class TrackFragment extends BaseFragment implements TrackViewModel.OnTrac
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        if (mTrackModels == null) {
-            mTrackModels = new ArrayList<>();
+        if (mTrackViewModel == null) {
+            mTrackViewModel = new TrackViewModel();
         }
 
         View view = inflater.inflate(R.layout.fragment_track, container, false);
         mBinding = FragmentTrackBinding.bind(view);
-        mTrackViewModel = new TrackViewModel();
         mTrackViewModel.setOnTrackListChangedListener(this);
         mBinding.setVm(mTrackViewModel);
 
-        if (mTrackModels.isEmpty()) mTrackViewModel.searchTracks(mSpotifyId);
+        if (mTrackViewModel.mTrackModels.isEmpty()) mTrackViewModel.searchTracks(mSpotifyId);
 
         setupRecyclerView(mBinding.tracksRecyclerView);
 
@@ -73,7 +67,7 @@ public class TrackFragment extends BaseFragment implements TrackViewModel.OnTrac
     private void setupRecyclerView(RecyclerView recyclerView) {
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         recyclerView.setItemAnimator(new DefaultItemAnimator());
-        TrackAdapter trackAdapter = new TrackAdapter(mTrackModels);
+        TrackAdapter trackAdapter = new TrackAdapter(mTrackViewModel.mTrackModels);
         recyclerView.setAdapter(trackAdapter);
     }
 
@@ -84,9 +78,7 @@ public class TrackFragment extends BaseFragment implements TrackViewModel.OnTrac
     }
 
     @Override
-    public void onTrackListChanged(List<TrackModel> trackModels) {
-        mTrackModels.clear();
-        for (TrackModel track : trackModels) mTrackModels.add(track);
+    public void onTrackListChanged() {
         mBinding.tracksRecyclerView.getAdapter().notifyDataSetChanged();
     }
 
