@@ -13,7 +13,7 @@ import android.widget.EditText;
  * Adapter to allow for two-way binding with EditTexts
  * Created by williamwong on 12/14/15.
  */
-public class BindableString implements Parcelable {
+public class BindableString implements Parcelable, TextWatcher {
 
     public static final Parcelable.Creator<BindableString> CREATOR = new Parcelable.Creator<BindableString>() {
         public BindableString createFromParcel(Parcel source) {
@@ -24,32 +24,14 @@ public class BindableString implements Parcelable {
             return new BindableString[size];
         }
     };
-    public ObservableField<String> value = new ObservableField<>("");
-    public TextWatcher watcher = new TextWatcher() {
-        @Override
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-        }
-
-        @Override
-        public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-        }
-
-        @Override
-        public void afterTextChanged(Editable s) {
-            if (!value.get().equals(s.toString())) {
-                value.set(s.toString());
-            }
-        }
-    };
+    private ObservableField<String> value = new ObservableField<>("");
 
     public BindableString() {
-        this.value.set("");
+        set("");
     }
 
     public BindableString(String value) {
-        this.value.set(value);
+        set(value);
     }
 
     protected BindableString(Parcel in) {
@@ -63,7 +45,20 @@ public class BindableString implements Parcelable {
         }
     }
 
-    // Parcelable
+    @Override
+    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+    }
+
+    @Override
+    public void onTextChanged(CharSequence s, int start, int before, int count) {
+    }
+
+    @Override
+    public void afterTextChanged(Editable s) {
+        if (!get().equals(s.toString())) {
+            set(s.toString());
+        }
+    }
 
     public String get() {
         return value.get();

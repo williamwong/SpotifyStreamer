@@ -63,8 +63,6 @@ public class TrackViewModel implements Parcelable {
         this.mTrackModels = in.createTypedArrayList(TrackModel.CREATOR);
     }
 
-    // Listener
-
     /**
      * Searches Spotify for top 10 artist tracks using Spotify API wrapper.
      *
@@ -152,8 +150,6 @@ public class TrackViewModel implements Parcelable {
     public void setOnTrackListChangedListener(OnTrackListChangedListener listener) {
         mListener = listener;
     }
-
-    // Parcelable
 
     public void removeOnTrackListChangedListener(OnTrackListChangedListener listener) {
         if (mListener == listener) mListener = null;

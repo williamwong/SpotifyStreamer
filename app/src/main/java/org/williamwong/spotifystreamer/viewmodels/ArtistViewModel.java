@@ -103,6 +103,7 @@ public class ArtistViewModel implements Parcelable {
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
+                        isLoading.set(false);
                         if (mListener != null) mListener.onErrorReceived(R.string.error_network);
                     }
                 });
