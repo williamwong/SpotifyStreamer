@@ -5,9 +5,12 @@ import android.content.res.Resources;
 import android.databinding.ObservableBoolean;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.text.TextUtils;
 
 import org.williamwong.spotifystreamer.R;
+import org.williamwong.spotifystreamer.SpotifyApplication;
 import org.williamwong.spotifystreamer.models.TrackModel;
 
 import java.util.ArrayList;
@@ -15,7 +18,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import kaaes.spotify.webapi.android.SpotifyApi;
+import javax.inject.Inject;
+
 import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.ArtistSimple;
 import kaaes.spotify.webapi.android.models.Image;
@@ -29,17 +33,34 @@ import retrofit.client.Response;
  * View model for track list
  * Created by williamwong on 12/15/15.
  */
-public class TrackViewModel {
+public class TrackViewModel implements Parcelable {
 
-    public final ObservableBoolean isLoading = new ObservableBoolean(false);
-    private final Resources mResources;
-    private final SpotifyService mSpotify = new SpotifyApi().getService();
-    private final SharedPreferences mPreferences;
+    public static final Parcelable.Creator<TrackViewModel> CREATOR = new Parcelable.Creator<TrackViewModel>() {
+        public TrackViewModel createFromParcel(Parcel source) {
+            return new TrackViewModel(source);
+        }
+
+        public TrackViewModel[] newArray(int size) {
+            return new TrackViewModel[size];
+        }
+    };
+    public ObservableBoolean isLoading = new ObservableBoolean(false);
+    public List<TrackModel> mTrackModels = new ArrayList<>();
+    @Inject
+    Resources mResources;
+    @Inject
+    SpotifyService mSpotify;
+    @Inject
+    SharedPreferences mPreferences;
     private OnTrackListChangedListener mListener;
 
-    public TrackViewModel(SharedPreferences preferences, Resources resources) {
-        mPreferences = preferences;
-        mResources = resources;
+    public TrackViewModel() {
+        SpotifyApplication.getContext().getNetComponent().inject(this);
+    }
+
+    protected TrackViewModel(Parcel in) {
+        this.isLoading = in.readParcelable(ObservableBoolean.class.getClassLoader());
+        this.mTrackModels = in.createTypedArrayList(TrackModel.CREATOR);
     }
 
     /**
@@ -88,7 +109,6 @@ public class TrackViewModel {
      */
     private void updateTracks(List<Track> tracks) {
         if (!tracks.isEmpty()) {
-            List<TrackModel> trackModels = new ArrayList<>();
             for (Track track : tracks) {
                 TrackModel trackModel = new TrackModel();
                 trackModel.setTrackName(track.name);
@@ -119,9 +139,9 @@ public class TrackViewModel {
                 trackModel.setArtistName(TextUtils.join(", ", artistNames));
 
                 // TODO set placeholder image
-                trackModels.add(trackModel);
+                mTrackModels.add(trackModel);
             }
-            if (mListener != null) mListener.onTrackListChanged(trackModels);
+            if (mListener != null) mListener.onTrackListChanged();
         } else {
             if (mListener != null) mListener.onErrorReceived(R.string.error_no_tracks_found);
         }
@@ -135,8 +155,19 @@ public class TrackViewModel {
         if (mListener == listener) mListener = null;
     }
 
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeParcelable(this.isLoading, 0);
+        dest.writeTypedList(mTrackModels);
+    }
+
     public interface OnTrackListChangedListener {
-        void onTrackListChanged(List<TrackModel> trackModels);
+        void onTrackListChanged();
 
         void onErrorReceived(int resource);
     }

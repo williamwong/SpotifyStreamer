@@ -4,11 +4,14 @@ import android.content.res.Resources;
 import android.databinding.ObservableBoolean;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.view.KeyEvent;
 import android.view.inputmethod.EditorInfo;
 import android.widget.TextView;
 
 import org.williamwong.spotifystreamer.R;
+import org.williamwong.spotifystreamer.SpotifyApplication;
 import org.williamwong.spotifystreamer.models.ArtistModel;
 import org.williamwong.spotifystreamer.utilities.BindableString;
 
@@ -17,7 +20,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import kaaes.spotify.webapi.android.SpotifyApi;
+import javax.inject.Inject;
+
 import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.Artist;
 import kaaes.spotify.webapi.android.models.ArtistsPager;
@@ -30,16 +34,33 @@ import retrofit.client.Response;
  * View model for artist search interface
  * Created by williamwong on 12/13/15.
  */
-public class ArtistViewModel {
+public class ArtistViewModel implements Parcelable {
 
-    public final ObservableBoolean isLoading = new ObservableBoolean(false);
-    public final BindableString searchArtistQuery = new BindableString();
-    private final Resources mResources;
-    private final SpotifyService mSpotify = new SpotifyApi().getService();
+    public static final Parcelable.Creator<ArtistViewModel> CREATOR = new Parcelable.Creator<ArtistViewModel>() {
+        public ArtistViewModel createFromParcel(Parcel source) {
+            return new ArtistViewModel(source);
+        }
+
+        public ArtistViewModel[] newArray(int size) {
+            return new ArtistViewModel[size];
+        }
+    };
+    public ObservableBoolean isLoading = new ObservableBoolean(false);
+    public BindableString searchArtistQuery = new BindableString();
+    public List<ArtistModel> mArtistModels = new ArrayList<>();
+    @Inject
+    Resources mResources;
+    @Inject
+    SpotifyService mSpotify;
     private OnArtistsChangedListener mListener;
 
-    public ArtistViewModel(Resources resources) {
-        mResources = resources;
+    public ArtistViewModel() {
+        SpotifyApplication.getContext().getNetComponent().inject(this);
+    }
+
+    protected ArtistViewModel(Parcel in) {
+        this.isLoading = in.readParcelable(ObservableBoolean.class.getClassLoader());
+        this.searchArtistQuery = in.readParcelable(BindableString.class.getClassLoader());
     }
 
     public boolean onSearchAction(TextView view, int actionId, KeyEvent event) {
@@ -82,6 +103,7 @@ public class ArtistViewModel {
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
+                        isLoading.set(false);
                         if (mListener != null) mListener.onErrorReceived(R.string.error_network);
                     }
                 });
@@ -96,7 +118,6 @@ public class ArtistViewModel {
      */
     private void updateArtistModels(ArtistsPager artistsPager) {
         if (artistsPager.artists.total > 0) {
-            List<ArtistModel> artistModels = new ArrayList<>();
             for (Artist artist : artistsPager.artists.items) {
                 ArtistModel artistModel = new ArtistModel();
                 artistModel.setName(artist.name);
@@ -120,9 +141,9 @@ public class ArtistViewModel {
 
                 // TODO add placeholder image
 
-                artistModels.add(artistModel);
+                mArtistModels.add(artistModel);
             }
-            if (mListener != null) mListener.onArtistsChanged(artistModels);
+            if (mListener != null) mListener.onArtistsChanged();
         } else {
             if (mListener != null) mListener.onErrorReceived(R.string.error_no_artists_found);
         }
@@ -136,8 +157,19 @@ public class ArtistViewModel {
         mListener = null;
     }
 
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeParcelable(this.isLoading, 0);
+        dest.writeParcelable(this.searchArtistQuery, 0);
+    }
+
     public interface OnArtistsChangedListener {
-        void onArtistsChanged(List<ArtistModel> artists);
+        void onArtistsChanged();
 
         void onErrorReceived(int resource);
     }

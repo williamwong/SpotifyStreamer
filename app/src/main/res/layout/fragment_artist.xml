@@ -29,8 +29,8 @@
             android:imeOptions="actionSearch"
             android:onEditorAction="@{vm.onSearchAction}"
             android:singleLine="true"
-            app:addTextChangedListener="@{vm.searchArtistQuery.watcher}"
-            app:text="@{vm.searchArtistQuery.value}"/>
+            app:addTextChangedListener="@{vm.searchArtistQuery}"
+            app:text="@{vm.searchArtistQuery.get}"/>
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/artistsRecyclerView"
