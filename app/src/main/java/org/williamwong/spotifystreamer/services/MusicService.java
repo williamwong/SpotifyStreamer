@@ -11,12 +11,12 @@ import android.media.MediaPlayer;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.IBinder;
-import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 
 import com.squareup.picasso.Picasso;
 
 import org.williamwong.spotifystreamer.R;
+import org.williamwong.spotifystreamer.SpotifyApplication;
 import org.williamwong.spotifystreamer.activities.PlayerActivity;
 import org.williamwong.spotifystreamer.models.TrackModel;
 
@@ -24,6 +24,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+
+import javax.inject.Inject;
 
 public class MusicService extends Service implements MediaPlayer.OnPreparedListener,
         MediaPlayer.OnErrorListener, MediaPlayer.OnBufferingUpdateListener,
@@ -36,6 +38,8 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     public static final String ACTION_PREVIOUS = "org.williamwong.spotifystreamer.action.PREVIOUS_SONG";
     private static final int NOTIFICATION_ID = 1;
     private static MusicService sMusicService;
+    @Inject
+    SharedPreferences mPreferences;
     private MediaPlayer mMediaPlayer = null;
     private List<TrackModel> mTrackModels;
     private int mCurrentTrack;
@@ -48,7 +52,6 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     private PendingIntent mPauseIntent;
     private PendingIntent mPlayIntent;
     private PendingIntent mNextIntent;
-    private SharedPreferences mPreferences;
     private NotificationCompat.Builder mNotificationBuilder;
 
     public static MusicService getMusicService() {
@@ -63,6 +66,7 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
     @Override
     public void onCreate() {
         super.onCreate();
+        SpotifyApplication.getContext().getNetComponent().inject(this);
         sMusicService = this;
 
         mOpenPlayerIntent = PendingIntent.getActivity(getApplicationContext(),
@@ -77,7 +81,6 @@ public class MusicService extends Service implements MediaPlayer.OnPreparedListe
                 0, new Intent(MusicService.ACTION_NEXT), PendingIntent.FLAG_UPDATE_CURRENT);
 
         mOnTrackChangedListeners = new ArrayList<>();
-        mPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         mPreferences.registerOnSharedPreferenceChangeListener(this);
         toggleNotification(mPreferences.getBoolean("show_notification", true));
 
